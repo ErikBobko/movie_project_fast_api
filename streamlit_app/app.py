@@ -18,7 +18,6 @@ st.sidebar.header("Filters")
 # DATA LOAD
 # -----------------
 kpis = get_kpis()
-top_movies = get_top_rated()
 movies = get_movies()
 
 # -----------------
@@ -54,6 +53,12 @@ filtered_movies = [
     m for m in filtered_movies if m["rating"] >= min_rating
 ]
 
+top_movies_filtered = sorted(
+    filtered_movies,
+    key=lambda x: x["rating"],
+    reverse=True
+)[:10]
+
 # -----------------
 # KPI SECTION
 # -----------------
@@ -74,8 +79,8 @@ col2.metric(
 # TABLES SECTION
 # -----------------
 
-st.subheader("⭐ Top Rated Movies")
-st.dataframe(top_movies)
+st.subheader("⭐ Top Rated Movies (Filtered)")
+st.dataframe(pd.DataFrame(top_movies_filtered))
 
 st.subheader("🎥 Movies")
 
