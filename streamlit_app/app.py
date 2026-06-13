@@ -1,111 +1,126 @@
 import streamlit as st
 import pandas as pd
 
-from services.analytics import get_kpis
-from services.analytics import get_movies
+st.set_page_config(page_title="Movie Dashboard", layout="wide")
 
-st.set_page_config(
-    page_title="Movie Analytics",
-    layout="wide"
-)
+# =========================
+# SIDEBAR (FILTER PANEL)
+# =========================
+with st.sidebar:
+    st.title("🎬 Movie Analytics")
 
-st.title("🎬 Movie Analytics Dashboard")
+    st.markdown("### Filters")
 
-st.sidebar.header("Filters")
+    selected_year = st.selectbox("Year", ["All", 2024, 2023, 2022])
+    min_rating = st.slider("Minimum Rating", 0.0, 10.0, 5.0)
+    min_votes = st.slider("Minimum Votes", 0, 10000, 100)
 
-# -----------------
-# DATA LOAD
-# -----------------
-kpis = get_kpis()
-movies = get_movies()
-
-# -----------------
-# FILTERS SECTION
-# -----------------
-
-years = sorted(
-    set(movie["year"] for movie in movies if movie["year"] is not None)
-)
-
-selected_year = st.sidebar.selectbox(
-    "Year",
-    options=["All"] + years
-)
-
-min_rating = st.sidebar.slider(
-    "Minimum rating",
-    0.0,
-    10.0,
-    0.0,
-    0.5
-)
+    st.markdown("---")
+    st.info("Filter panel like in BI tools")
 
 
-# apply filters
-filtered_movies = movies
+# =========================
+# MAIN DATA (placeholder)
+# =========================
+# sem si napojíš svoje funkcie
+# kpis = get_kpis()
+# movies = get_movies()
 
-if selected_year != "All":
-    filtered_movies = [
-        m for m in filtered_movies if m["year"] == selected_year
-    ]
+total_movies = 5684
+avg_rating = 6.72
+avg_popularity = 27.45
+total_votes = "12.45M"
 
-filtered_movies = [
-    m for m in filtered_movies if m["rating"] >= min_rating
-]
 
-top_movies_filtered = sorted(
-    filtered_movies,
-    key=lambda x: x["rating"],
-    reverse=True
-)[:10]
+# =========================
+# MAIN DASHBOARD
+# =========================
+main = st.container()
 
-year_counts = {}
+with main:
 
-for movie in filtered_movies:
-    year = movie["year"]
-    if year is None:
-        continue
-    year_counts[year] = year_counts.get(year, 0) + 1
+    # =========================
+    # TITLE
+    # =========================
+    st.title("📊 Movie Analytics Dashboard")
+    st.markdown("TMDB Movie Data Analysis")
 
-chart_df = pd.DataFrame(
-    sorted(year_counts.items()),
-    columns=["year", "count"]
-)
-# -----------------
-# KPI SECTION
-# -----------------
+    # =========================
+    # KPI ROW (5 cards ako na obrázku)
+    # =========================
+    k1, k2, k3, k4, k5 = st.columns(5)
 
-col1, col2 = st.columns(2)
+    k1.metric("Total Movies", total_movies, "in database")
+    k2.metric("Average Rating", avg_rating)
+    k3.metric("Avg Popularity", avg_popularity)
+    k4.metric("Total Votes", total_votes)
+    k5.metric("Release Range", "1900 - 2024")
 
-col1.metric(
-    "Total Movies",
-    kpis["total_movies"]
-)
+    st.markdown("---")
 
-col2.metric(
-    "Average Rating",
-    round(kpis["avg_rating"], 2)
-)
 
-# -----------------
-# TABLES SECTION
-# -----------------
+    # =========================
+    # CHART ROW (3 GRID)
+    # =========================
+    c1, c2, c3 = st.columns(3)
 
-st.subheader("⭐ Top Rated Movies (Filtered)")
-st.dataframe(pd.DataFrame(top_movies_filtered))
+    with c1:
+        st.subheader("Movies per Year")
+        st.bar_chart(pd.DataFrame({
+            "year": [2019, 2020, 2021, 2022],
+            "count": [120, 150, 180, 210]
+        }).set_index("year"))
 
-st.subheader("🎥 Movies")
+    with c2:
+        st.subheader("Language Distribution")
+        st.bar_chart(pd.DataFrame({
+            "lang": ["EN", "FR", "ES"],
+            "count": [70, 20, 10]
+        }).set_index("lang"))
 
-df = pd.DataFrame(filtered_movies)
-st.dataframe(df)
+    with c3:
+        st.subheader("Rating Distribution")
+        st.bar_chart(pd.DataFrame({
+            "rating": [1,2,3,4,5,6,7,8,9,10],
+            "count": [5,10,20,40,80,120,90,60,30,10]
+        }).set_index("rating"))
 
-# -----------------
-# GRAPH SECTION
-# -----------------
 
-st.subheader("📊 Movies per Year")
+    st.markdown("---")
 
-if not chart_df.empty:
-    st.bar_chart(chart_df.set_index("year"))
-else:
-    st.info("No data for selected filters")
+
+    # =========================
+    # TABLES SECTION (2 COLUMNS)
+    # =========================
+    t1, t2 = st.columns(2)
+
+    with t1:
+        st.subheader("Top Rated Movies")
+        st.dataframe(pd.DataFrame({
+            "Title": ["Movie A", "Movie B"],
+            "Rating": [9.3, 9.1],
+            "Year": [1994, 2001]
+        }))
+
+    with t2:
+        st.subheader("Most Popular Movies")
+        st.dataframe(pd.DataFrame({
+            "Title": ["Movie X", "Movie Y"],
+            "Popularity": [5000, 4800],
+            "Year": [2020, 2021]
+        }))
+
+
+    st.markdown("---")
+
+
+    # =========================
+    # FULL TABLE (BOTTOM)
+    # =========================
+    st.subheader("All Movies")
+
+    st.dataframe(pd.DataFrame({
+        "Title": ["A", "B", "C"],
+        "Rating": [8.1, 7.5, 9.0],
+        "Year": [2001, 2005, 2010]
+    }))
