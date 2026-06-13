@@ -15,16 +15,16 @@ Dôležité:
 - NErobí analýzy (analytics.py)
 """
 
-from services.tmdb import (
+from clients.tmdb_client import (
     get_popular_movies,
     get_genres,
     get_movie_details,
 )
 
-from services.movie_transformer import (build_genre_map, transform_movie)
+from pipelines.movie_transformer import (build_genre_map, transform_movie)
 from db import supabase
 
-def sync_popular_movies(pages: int = 50):
+def sync_popular_movies(pages: int = 1):
 
     genres = get_genres()
     genre_map = build_genre_map(genres)

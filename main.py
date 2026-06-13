@@ -12,7 +12,7 @@ Dôležité:
 - NErobí výpočty
 - IBA volá services
 """
-from services.ingestion import  sync_popular_movies
+from pipelines.ingestion import  sync_popular_movies
 from fastapi import FastAPI
 from services.analytics import get_movies, get_top_rated, get_language_stats
 from db import supabase
