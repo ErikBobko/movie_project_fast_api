@@ -10,7 +10,7 @@ Dôležité:
 - NErobí analýzy
 - NEobsahuje business logiku
 
-Je to iba "data fetcher"
+Je to API client pre TMDB.
 """
 
 import requests

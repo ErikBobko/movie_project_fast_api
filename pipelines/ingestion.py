@@ -12,7 +12,7 @@ TMDB → ingestion → DB
 Dôležité:
 - NEkomunikuje priamo s FastAPI
 - NEobsahuje UI logiku (Streamlit)
-- NErobí analýzy (analytics.py)
+ NEobsahuje analytické výpočty
 """
 
 from clients.tmdb_client import (

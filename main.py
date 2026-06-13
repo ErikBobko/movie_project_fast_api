@@ -4,19 +4,19 @@ FASTAPI ENTRY POINT
 Úloha:
 - spúšťa backend server
 - definuje API endpointy
-- prepája services (analytics, ingestion)
+- prepája služby a databázovú vrstvu
 - vystavuje dáta pre Streamlit alebo iné klienty
 
 Dôležité:
-- NEobsahuje business logiku
-- NErobí výpočty
-- IBA volá services
+- neobsahuje business logiku
+- nevykonáva analytické výpočty
+- endpointy delegujú prácu na services alebo databázovú vrstvu
 """
+
 from pipelines.ingestion import  sync_popular_movies
 from fastapi import FastAPI
 from services.analytics import get_movies, get_top_rated, get_language_stats
 from db import supabase
-from pydantic import BaseModel
 from models.movie import Movie
 
 app = FastAPI()

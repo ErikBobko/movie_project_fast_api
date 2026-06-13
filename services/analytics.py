@@ -2,13 +2,14 @@
 ANALYTICS SERVICE
 
 Úloha:
-- berie dáta z databázy (db.py / Supabase)
-- počíta štatistiky a agregácie
-- pripravuje dáta pre API alebo Streamlit
+- načítava dáta z databázy
+- pripravuje analytické výstupy
+- poskytuje dáta pre API a Streamlit
 
-NEPOSIELA requesty do TMDB
-NEUKLADÁ dáta
-IBA spracováva už uložené dáta
+Dôležité:
+- neposiela requesty do TMDB
+- nemení dáta v databáze
+- pracuje iba s uloženými dátami
 """
 
 from db import supabase
