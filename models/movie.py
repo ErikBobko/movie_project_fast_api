@@ -1,3 +1,21 @@
+"""
+MOVIE MODEL
+
+Úloha:
+- definuje dátovú štruktúru filmu v aplikácii
+- validuje vstupné dáta pomocou Pydantic
+
+Použitie:
+- FastAPI request/response model
+- reprezentácia filmu v aplikácii
+
+Dôležité:
+- neobsahuje business logiku
+- nekomunikuje s databázou
+- nekomunikuje s externými API
+"""
+
+
 from pydantic import BaseModel
 
 class Movie(BaseModel):
