@@ -38,8 +38,25 @@ def get_movies():
         supabase
         .table("movies")
         .select("*")
-        .limit(100)
+        .limit(1000)
         .execute()
     )
 
     return response.data
+
+def get_kpis():
+    movies = get_movies()
+
+    total_movies = len(movies)
+
+    avg_rating = (
+        sum(movie["rating"] for movie in movies)
+        / total_movies
+        if total_movies
+        else 0
+    )
+
+    return {
+        "total_movies": total_movies,
+        "avg_rating": avg_rating
+    }
