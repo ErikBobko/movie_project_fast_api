@@ -44,15 +44,25 @@ def get_movies():
 
     return response.data
 
+def get_movies_count():
+    response = (
+        supabase
+        .table("movies")
+        .select("*", count="exact")
+        .execute()
+    )
+
+    return response.count
+
 def get_kpis():
     movies = get_movies()
 
-    total_movies = len(movies)
+    total_movies = get_movies_count()
 
     avg_rating = (
         sum(movie["rating"] for movie in movies)
-        / total_movies
-        if total_movies
+        / len(movies)
+        if movies
         else 0
     )
 
