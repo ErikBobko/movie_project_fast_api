@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 
 from services.analytics import get_kpis
-from services.analytics import get_top_rated
 from services.analytics import get_movies
 
 st.set_page_config(
@@ -41,6 +40,7 @@ min_rating = st.sidebar.slider(
     0.5
 )
 
+
 # apply filters
 filtered_movies = movies
 
@@ -59,6 +59,18 @@ top_movies_filtered = sorted(
     reverse=True
 )[:10]
 
+year_counts = {}
+
+for movie in filtered_movies:
+    year = movie["year"]
+    if year is None:
+        continue
+    year_counts[year] = year_counts.get(year, 0) + 1
+
+chart_df = pd.DataFrame(
+    sorted(year_counts.items()),
+    columns=["year", "count"]
+)
 # -----------------
 # KPI SECTION
 # -----------------
@@ -86,3 +98,14 @@ st.subheader("🎥 Movies")
 
 df = pd.DataFrame(filtered_movies)
 st.dataframe(df)
+
+# -----------------
+# GRAPH SECTION
+# -----------------
+
+st.subheader("📊 Movies per Year")
+
+if not chart_df.empty:
+    st.bar_chart(chart_df.set_index("year"))
+else:
+    st.info("No data for selected filters")
