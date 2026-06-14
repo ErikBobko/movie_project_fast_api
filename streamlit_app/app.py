@@ -91,14 +91,23 @@ if "original_language" in lang_df.columns:
 else:
     lang_df = pd.DataFrame(columns=["language", "count"])
 
-ratings = df["rating"].dropna().tolist()
+genre_df = pd.DataFrame()
 
-rating_df = None
+if "category" in pd.DataFrame(filtered_movies).columns:
 
-if ratings:
-    bins = pd.cut(ratings, [0, 2, 4, 6, 8, 10], include_lowest=True)
-    rating_df = bins.value_counts().sort_index()
-    rating_df.index = rating_df.index.astype(str)
+    genres = []
+
+    for categories in pd.DataFrame(filtered_movies)["category"].dropna():
+        genres.extend([g.strip() for g in categories.split(",")])
+
+    genre_df = (
+        pd.Series(genres)
+        .value_counts()
+        .head(20)
+        .reset_index()
+    )
+
+    genre_df.columns = ["genre", "count"]
 
 # =========================
 # UI
@@ -135,10 +144,10 @@ with main:
             st.bar_chart(lang_df.set_index("language"))
 
     with c3:
-        st.subheader("Rating Distribution")
+        st.subheader("Top 10 Genres")
 
-        if rating_df is not None:
-            st.bar_chart(rating_df)
+        if not genre_df.empty:
+            st.bar_chart(genre_df.set_index("genre"))
 
     st.markdown("---")
 
