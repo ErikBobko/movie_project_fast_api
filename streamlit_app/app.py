@@ -1,126 +1,162 @@
 import streamlit as st
 import pandas as pd
+from services.analytics import get_movies
 
+# =========================
+# PAGE CONFIG
+# =========================
 st.set_page_config(page_title="Movie Dashboard", layout="wide")
 
 # =========================
-# SIDEBAR (FILTER PANEL)
+# LOAD DATA
+# =========================
+movies = get_movies()
+
+if not movies:
+    st.error("No movies loaded")
+    st.stop()
+
+# =========================
+# SIDEBAR
 # =========================
 with st.sidebar:
-    st.title("🎬 Movie Analytics")
+    st.title("? Movie Analytics")
 
-    st.markdown("### Filters")
+    years = sorted({m.get("year") for m in movies if m.get("year") is not None})
 
-    selected_year = st.selectbox("Year", ["All", 2024, 2023, 2022])
+    selected_year = st.selectbox("Year", ["All"] + years)
     min_rating = st.slider("Minimum Rating", 0.0, 10.0, 5.0)
     min_votes = st.slider("Minimum Votes", 0, 10000, 100)
 
-    st.markdown("---")
-    st.info("Filter panel like in BI tools")
+# =========================
+# FILTERING
+# =========================
+filtered_movies = movies
 
+if selected_year != "All":
+    filtered_movies = [
+        m for m in filtered_movies
+        if m.get("year") == selected_year
+    ]
+
+filtered_movies = [
+    m for m in filtered_movies
+    if (m.get("rating") or 0) >= min_rating
+]
+
+filtered_movies = [
+    m for m in filtered_movies
+    if (m.get("vote_count") or 0) >= min_votes
+]
 
 # =========================
-# MAIN DATA (placeholder)
+# KPI
 # =========================
-# sem si napojíš svoje funkcie
-# kpis = get_kpis()
-# movies = get_movies()
+total_movies = len(filtered_movies)
 
-total_movies = 5684
-avg_rating = 6.72
-avg_popularity = 27.45
-total_votes = "12.45M"
+avg_rating = (
+    sum(m.get("rating") or 0 for m in filtered_movies) / total_movies
+    if total_movies else 0
+)
 
+avg_popularity = (
+    sum(m.get("popularity") or 0 for m in filtered_movies) / total_movies
+    if total_movies else 0
+)
 
 # =========================
-# MAIN DASHBOARD
+# DATAFRAME SAFE CONVERSION
+# =========================
+df = pd.DataFrame(filtered_movies)
+
+
+expected_cols = ["title",  "year", "rating","popularity","vote_count","original_language","runtime"]
+
+for col in expected_cols:
+    if col not in df.columns:
+        df[col] = None
+
+df = df[expected_cols]
+
+# =========================
+# DERIVED DATA
+# =========================
+chart_df = df.groupby("year").size().reset_index(name="count")
+
+lang_df = pd.DataFrame(filtered_movies)
+
+if "original_language" in lang_df.columns:
+    lang_df = lang_df["original_language"].value_counts().reset_index()
+    lang_df.columns = ["language", "count"]
+else:
+    lang_df = pd.DataFrame(columns=["language", "count"])
+
+ratings = df["rating"].dropna().tolist()
+
+rating_df = None
+
+if ratings:
+    bins = pd.cut(ratings, [0, 2, 4, 6, 8, 10], include_lowest=True)
+    rating_df = bins.value_counts().sort_index()
+    rating_df.index = rating_df.index.astype(str)
+
+# =========================
+# UI
 # =========================
 main = st.container()
 
 with main:
 
-    # =========================
-    # TITLE
-    # =========================
-    st.title("📊 Movie Analytics Dashboard")
-    st.markdown("TMDB Movie Data Analysis")
+    st.title("? Movie Analytics Dashboard")
 
-    # =========================
-    # KPI ROW (5 cards ako na obrázku)
-    # =========================
-    k1, k2, k3, k4, k5 = st.columns(5)
+    # KPI
+    k1, k2, k3, k4 = st.columns(4)
 
-    k1.metric("Total Movies", total_movies, "in database")
-    k2.metric("Average Rating", avg_rating)
-    k3.metric("Avg Popularity", avg_popularity)
-    k4.metric("Total Votes", total_votes)
-    k5.metric("Release Range", "1900 - 2024")
+    k1.metric("Movies", total_movies)
+    k2.metric("Avg Rating", round(avg_rating, 2))
+    k3.metric("Avg Popularity", round(avg_popularity, 2))
+    k4.metric("Languages", len(lang_df))
 
     st.markdown("---")
 
-
-    # =========================
-    # CHART ROW (3 GRID)
-    # =========================
+    # CHARTS
     c1, c2, c3 = st.columns(3)
 
     with c1:
         st.subheader("Movies per Year")
-        st.bar_chart(pd.DataFrame({
-            "year": [2019, 2020, 2021, 2022],
-            "count": [120, 150, 180, 210]
-        }).set_index("year"))
+
+        if not chart_df.empty:
+            st.bar_chart(chart_df.set_index("year"))
 
     with c2:
         st.subheader("Language Distribution")
-        st.bar_chart(pd.DataFrame({
-            "lang": ["EN", "FR", "ES"],
-            "count": [70, 20, 10]
-        }).set_index("lang"))
+
+        if not lang_df.empty:
+            st.bar_chart(lang_df.set_index("language"))
 
     with c3:
         st.subheader("Rating Distribution")
-        st.bar_chart(pd.DataFrame({
-            "rating": [1,2,3,4,5,6,7,8,9,10],
-            "count": [5,10,20,40,80,120,90,60,30,10]
-        }).set_index("rating"))
 
+        if rating_df is not None:
+            st.bar_chart(rating_df)
 
     st.markdown("---")
 
+    # TABLES SAFE
+    top_movies = df.sort_values("rating", ascending=False).head(10)
+    popular_movies = df.sort_values("popularity", ascending=False).head(10)
 
-    # =========================
-    # TABLES SECTION (2 COLUMNS)
-    # =========================
     t1, t2 = st.columns(2)
 
     with t1:
         st.subheader("Top Rated Movies")
-        st.dataframe(pd.DataFrame({
-            "Title": ["Movie A", "Movie B"],
-            "Rating": [9.3, 9.1],
-            "Year": [1994, 2001]
-        }))
+        st.dataframe(top_movies, width="stretch")
 
     with t2:
         st.subheader("Most Popular Movies")
-        st.dataframe(pd.DataFrame({
-            "Title": ["Movie X", "Movie Y"],
-            "Popularity": [5000, 4800],
-            "Year": [2020, 2021]
-        }))
-
+        st.dataframe(popular_movies, width="stretch")
 
     st.markdown("---")
 
-
-    # =========================
-    # FULL TABLE (BOTTOM)
-    # =========================
     st.subheader("All Movies")
-
-    st.dataframe(pd.DataFrame({
-        "Title": ["A", "B", "C"],
-        "Rating": [8.1, 7.5, 9.0],
-        "Year": [2001, 2005, 2010]
-    }))
+    st.dataframe(df, width="stretch")
