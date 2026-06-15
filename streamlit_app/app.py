@@ -5,6 +5,8 @@ import plotly.express as px
 from components.sidebar import render_sidebar
 from services.filters import  filter_movies
 from components.charts import  render_movies_per_year, render_rating_split, render_top_genres
+from services.metrics import calculate_metrics
+from components.kpis import  render_kpis
 
 # =========================
 # PAGE CONFIG
@@ -52,18 +54,11 @@ if not filtered_movies:
 # =========================
 # KPI
 # =========================
-total_movies = len(filtered_movies)
+metrics = calculate_metrics(filtered_movies)
 
-avg_rating = (
-    sum(m.get("rating") or 0 for m in filtered_movies) / total_movies
-    if total_movies else 0
-)
-
-avg_popularity = (
-    sum(m.get("popularity") or 0 for m in filtered_movies) / total_movies
-    if total_movies else 0
-)
-
+total_movies = metrics["total_movies"]
+avg_rating = metrics["avg_rating"]
+avg_popularity = metrics["avg_popularity"]
 # =========================
 # DATAFRAME SAFE CONVERSION
 # =========================
@@ -151,11 +146,10 @@ with main:
     # KPI
     k1, k2, k3, k4 = st.columns(4)
 
-    k1.metric("🎬 Movies", total_movies)
-    k2.metric("⭐ Avg Rating", round(avg_rating, 2))
-    k3.metric("🔥 Avg Popularity", round(avg_popularity, 2))
-    k4.metric(
-        "🌍 Languages",
+    render_kpis(
+        total_movies,
+        avg_rating,
+        avg_popularity,
         df["original_language"].nunique()
     )
 
@@ -191,7 +185,7 @@ with main:
         top_movies_styled = (
             top_movies.style
             .format({
-                "rating": "{:.1f}",
+                "rating": "{:.2f}",
                 "year": "{:.0f}",
                 "popularity": "{:.1f}",
                 "runtime": "{:.0f}"
@@ -209,7 +203,7 @@ with main:
         popular_movies_styled = (
             popular_movies.style
             .format({
-                "rating": "{:.1f}",
+                "rating": "{:.2f}",
                 "year": "{:.0f}",
                 "popularity": "{:.1f}",
                 "runtime": "{:.0f}"
@@ -245,7 +239,7 @@ with main:
     paged_df_styled = (
         paged_df.style
         .format({
-            "rating": "{:.1f}",
+            "rating": "{:.2f}",
             "year": "{:.0f}",
             "popularity": "{:.1f}",
             "runtime": "{:.0f}"
