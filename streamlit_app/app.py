@@ -7,6 +7,7 @@ from services.filters import  filter_movies
 from components.charts import  render_movies_per_year, render_rating_split, render_top_genres
 from services.metrics import calculate_metrics
 from components.kpis import  render_kpis
+from services.dataframe_builder import build_movie_dataframe
 
 # =========================
 # PAGE CONFIG
@@ -51,34 +52,26 @@ filtered_movies = filter_movies(
 if not filtered_movies:
     st.warning("No movies match the selected filters.")
     st.stop()
+
 # =========================
 # KPI
 # =========================
+
 metrics = calculate_metrics(filtered_movies)
 
 total_movies = metrics["total_movies"]
 avg_rating = metrics["avg_rating"]
 avg_popularity = metrics["avg_popularity"]
+
 # =========================
 # DATAFRAME SAFE CONVERSION
 # =========================
-df = pd.DataFrame(filtered_movies)
 
-
-expected_cols = ["title",  "year", "rating","popularity","vote_count","original_language","runtime"]
-df = df[expected_cols]
-df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
-
-for col in expected_cols:
-    if col not in df.columns:
-        df[col] = None
-
-df = df[expected_cols]
+df = build_movie_dataframe(filtered_movies)
 
 # =========================
 # DERIVED DATA
 # =========================
-df["decade"] = (df["year"] // 10) * 10
 
 chart_df = (
     df.groupby("decade")
