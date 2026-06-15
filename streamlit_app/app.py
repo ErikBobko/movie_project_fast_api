@@ -4,7 +4,7 @@ from services.analytics import get_movies
 import plotly.express as px
 from components.sidebar import render_sidebar
 from services.filters import  filter_movies
-from components.charts import  render_movies_per_year, render_rating_split
+from components.charts import  render_movies_per_year, render_rating_split, render_top_genres
 
 # =========================
 # PAGE CONFIG
@@ -175,25 +175,7 @@ with main:
 
     with c3:
         with st.container(border=True):
-            st.subheader("Top 5 Genres")
-            if not genre_df.empty:
-                fig = px.bar(
-                    genre_df,
-                    x="genre",
-                    y="count",
-                    text="count",
-                    color="genre",
-                    color_discrete_sequence=px.colors.qualitative.Bold
-                )
-
-                fig.update_traces(textposition="outside")
-
-                fig.update_layout(
-                    xaxis_title="Genre",
-                    yaxis_title="Movies"
-                )
-
-                st.plotly_chart(fig, width="stretch")
+            render_top_genres(genre_df)
 
     st.markdown("---")
 

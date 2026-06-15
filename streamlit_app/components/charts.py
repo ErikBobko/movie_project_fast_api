@@ -50,3 +50,32 @@ def render_rating_split(rating_split):
     )
 
     st.plotly_chart(fig, width="stretch")
+
+def render_top_genres(genre_df):
+    st.subheader("Top 5 Genres")
+
+    if genre_df.empty:
+        return
+
+    fig = px.bar(
+        genre_df,
+        x="genre",
+        y="count",
+        text="count",
+        color="genre",
+        color_discrete_sequence=px.colors.qualitative.Bold
+    )
+
+    fig.update_traces(
+        textposition="outside"
+    )
+
+    fig.update_layout(
+        xaxis_title="Genre",
+        yaxis_title="Movies"
+    )
+
+    st.plotly_chart(
+        fig,
+        width="stretch"
+    )
