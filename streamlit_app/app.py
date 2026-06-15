@@ -134,7 +134,6 @@ with main:
     st.title("🍿 Movie Analytics Dashboard")
 
 
-
     st.markdown(
         """
         <p style="
