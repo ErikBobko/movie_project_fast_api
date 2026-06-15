@@ -4,7 +4,7 @@ from services.analytics import get_movies
 import plotly.express as px
 from components.sidebar import render_sidebar
 from services.filters import  filter_movies
-from components.charts import  render_movies_per_year
+from components.charts import  render_movies_per_year, render_rating_split
 
 # =========================
 # PAGE CONFIG
@@ -171,24 +171,7 @@ with main:
 
     with c2:
         with st.container(border=True):
-            st.subheader("Rating Quality Split")
-
-            if not rating_split.empty:
-                fig = px.pie(
-                    rating_split,
-                    values="count",
-                    names="group",
-                    hole=0.4,
-                    color_discrete_sequence=["#00C49F", "#F1C40F","#E74C3C"]
-                )
-
-                fig.update_traces(
-                    textposition="inside",
-                    textinfo="percent+label",
-                    marker=dict(line=dict(color="#111", width=2))
-                )
-
-                st.plotly_chart(fig, width="stretch")
+            render_rating_split(rating_split)
 
     with c3:
         with st.container(border=True):
