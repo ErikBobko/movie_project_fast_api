@@ -3,15 +3,18 @@ import pandas as pd
 from services.analytics import get_movies
 import plotly.express as px
 from components.sidebar import render_sidebar
+from services.filters import  filter_movies
 
 # =========================
 # PAGE CONFIG
 # =========================
+
 st.set_page_config(page_title="Movie Dashboard", layout="wide")
 
 # =========================
 # LOAD DATA
 # =========================
+
 movies = get_movies()
 
 if not movies:
@@ -31,32 +34,20 @@ year_range = filters["year_range"]
 min_rating = filters["min_rating"]
 min_votes = filters["min_votes"]
 
-
 # =========================
 # FILTERING
 # =========================
-filtered_movies = movies
 
-filtered_movies = [
-    m for m in filtered_movies
-    if m.get("year") is not None
-    and year_range[0] <= m.get("year") <= year_range[1]
-]
-
-filtered_movies = [
-    m for m in filtered_movies
-    if (m.get("rating") or 0) >= min_rating
-]
-
-filtered_movies = [
-    m for m in filtered_movies
-    if (m.get("vote_count") or 0) >= min_votes
-]
+filtered_movies = filter_movies(
+    movies,
+    year_range,
+    min_rating,
+    min_votes
+)
 
 if not filtered_movies:
     st.warning("No movies match the selected filters.")
     st.stop()
-
 # =========================
 # KPI
 # =========================
