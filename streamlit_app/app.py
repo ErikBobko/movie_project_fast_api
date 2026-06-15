@@ -4,6 +4,7 @@ from services.analytics import get_movies
 import plotly.express as px
 from components.sidebar import render_sidebar
 from services.filters import  filter_movies
+from components.charts import  render_movies_per_year
 
 # =========================
 # PAGE CONFIG
@@ -166,20 +167,7 @@ with main:
 
     with c1:
         with st.container(border=True):
-            st.subheader("Movies per Year")
-
-            if not chart_df.empty:
-                fig = px.bar(
-                    chart_df,
-                    x="decade",
-                    y="count",
-                    text="count",
-                    color="count",
-                    color_continuous_scale="Blues"
-                )
-
-
-                st.plotly_chart(fig, width="stretch")
+            render_movies_per_year(chart_df)
 
     with c2:
         with st.container(border=True):
