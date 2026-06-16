@@ -5,7 +5,7 @@ def build_movie_dataframe(filtered_movies):
 
     expected_cols = [
         "title", "year", "rating", "popularity",
-        "vote_count", "original_language", "runtime"
+        "vote_count", "original_language", "runtime","category"
     ]
 
     for col in expected_cols:

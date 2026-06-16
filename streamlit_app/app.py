@@ -1,13 +1,11 @@
 import streamlit as st
-import pandas as pd
 from services.analytics import get_movies
-import plotly.express as px
-from components.sidebar import render_sidebar
 from services.filters import  filter_movies
 from components.charts import  render_movies_per_year, render_rating_split, render_top_genres
 from services.metrics import calculate_metrics
 from components.kpis import  render_kpis
 from services.dataframe_builder import build_movie_dataframe
+from services.charts_data import build_charts_data
 
 # =========================
 # PAGE CONFIG
@@ -73,45 +71,8 @@ df = build_movie_dataframe(filtered_movies)
 # DERIVED DATA
 # =========================
 
-chart_df = (
-    df.groupby("decade")
-      .size()
-      .reset_index(name="count")
-)
+chart_df, rating_split, genre_df = build_charts_data(df)
 
-lang_df = pd.DataFrame(filtered_movies)
-
-rating_df = df.dropna(subset=["rating"]).copy()
-
-def rating_bucket(r):
-    if r >= 8:
-        return "High (8+)"
-    elif r >= 6:
-        return "Medium (6–7.9)"
-    else:
-        return "Low (<6)"
-
-rating_df["rating_group"] = rating_df["rating"].apply(rating_bucket)
-
-rating_split = rating_df["rating_group"].value_counts().reset_index()
-rating_split.columns = ["group", "count"]
-
-
-if "category" in pd.DataFrame(filtered_movies).columns:
-
-    genres = []
-
-    for categories in pd.DataFrame(filtered_movies)["category"].dropna():
-        genres.extend([g.strip() for g in categories.split(",")])
-
-    genre_df = (
-        pd.Series(genres)
-        .value_counts()
-        .head(5)
-        .reset_index()
-    )
-
-    genre_df.columns = ["genre", "count"]
 
 # =========================
 # UI
