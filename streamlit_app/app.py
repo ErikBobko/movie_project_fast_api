@@ -6,6 +6,7 @@ from services.metrics import calculate_metrics
 from components.kpis import  render_kpis
 from services.dataframe_builder import build_movie_dataframe
 from services.charts_data import build_charts_data
+from components.table_styles import style_movie_table
 
 # =========================
 # PAGE CONFIG
@@ -18,7 +19,6 @@ st.set_page_config(page_title="Movie Dashboard", layout="wide")
 # =========================
 
 movies = get_movies()
-
 if not movies:
     st.error("No movies loaded")
     st.stop()
@@ -46,7 +46,6 @@ filtered_movies = filter_movies(
     min_rating,
     min_votes
 )
-
 if not filtered_movies:
     st.warning("No movies match the selected filters.")
     st.stop()
@@ -73,7 +72,6 @@ df = build_movie_dataframe(filtered_movies)
 
 chart_df, rating_split, genre_df = build_charts_data(df)
 
-
 # =========================
 # UI
 # =========================
@@ -81,8 +79,6 @@ main = st.container()
 
 with main:
     st.title("🍿 Movie Analytics Dashboard")
-
-
     st.markdown(
         """
         <p style="
@@ -99,7 +95,6 @@ with main:
 
     # KPI
     k1, k2, k3, k4 = st.columns(4)
-
     render_kpis(
         total_movies,
         avg_rating,
@@ -130,51 +125,22 @@ with main:
     top_movies = df.sort_values("rating", ascending=False).head(10)
     popular_movies = df.sort_values("popularity", ascending=False).head(10)
 
-
     t1, t2 = st.columns(2)
 
     with t1:
         st.subheader("Top Rated Movies")
-
-        top_movies_styled = (
-            top_movies.style
-            .format({
-                "rating": "{:.2f}",
-                "year": "{:.0f}",
-                "popularity": "{:.1f}",
-                "runtime": "{:.0f}"
-            })
-            .map(lambda x: "color: #00C49F", subset=["rating"])
-            .map(lambda x: "color: #FFD166", subset=["year"])
-            .map(lambda x: "color: #60A5FA", subset=["popularity"])
-        )
-
+        top_movies_styled = style_movie_table(top_movies)
         st.dataframe(top_movies_styled, width="stretch")
 
     with t2:
         st.subheader("Most Popular Movies")
-
-        popular_movies_styled = (
-            popular_movies.style
-            .format({
-                "rating": "{:.2f}",
-                "year": "{:.0f}",
-                "popularity": "{:.1f}",
-                "runtime": "{:.0f}"
-            })
-            .map(lambda x: "color: #00C49F", subset=["rating"])
-            .map(lambda x: "color: #FFD166", subset=["year"])
-            .map(lambda x: "color: #60A5FA", subset=["popularity"])
-        )
-
+        popular_movies_styled = style_movie_table(popular_movies)
         st.dataframe(popular_movies_styled, width="stretch")
 
     st.markdown("---")
 
     st.subheader("All Movies")
-
     page_size = 20
-
     total_pages = max(1, (len(df) - 1) // page_size + 1)
 
     page = st.number_input(
@@ -184,26 +150,11 @@ with main:
         value=1,
         step=1
     )
-
     start_idx = (page - 1) * page_size
     end_idx = start_idx + page_size
 
     paged_df = df.iloc[start_idx:end_idx]
-
-    paged_df_styled = (
-        paged_df.style
-        .format({
-            "rating": "{:.2f}",
-            "year": "{:.0f}",
-            "popularity": "{:.1f}",
-            "runtime": "{:.0f}"
-
-        })
-        .map(lambda x: "color: #00C49F", subset=["rating"])
-        .map(lambda x: "color: #FFD166", subset=["year"])
-        .map(lambda x: "color: #60A5FA", subset=["popularity"])
-    )
-
+    paged_df_styled = style_movie_table(paged_df)
     st.dataframe(paged_df_styled, width="stretch")
 
     st.caption(f"Page {page} of {total_pages}")
