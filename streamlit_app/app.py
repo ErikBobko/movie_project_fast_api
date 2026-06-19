@@ -1,9 +1,10 @@
 import streamlit as st
+
 from services.analytics import get_movies
-from services.filters import  filter_movies
-from components.charts import  render_movies_per_year, render_rating_split, render_top_genres
+from services.filters import filter_movies
+from components.charts import render_movies_per_year, render_rating_split, render_top_genres
 from services.metrics import calculate_metrics
-from components.kpis import  render_kpis
+from components.kpis import render_kpis
 from services.dataframe_builder import build_movie_dataframe
 from services.charts_data import build_charts_data
 from components.table_styles import style_movie_table
@@ -11,27 +12,21 @@ from components.sidebar import render_sidebar
 from streamlit_app.pages.discover import render_discover
 from streamlit_app.pages.movie_details import render_movie_details
 
+
 # =========================
 # PAGE CONFIG
 # =========================
-
 st.set_page_config(
     page_title="Movie Dashboard",
     layout="wide",
     initial_sidebar_state="expanded"
 )
-# =========================
-# LOAD DATA
-# =========================
-
-movies = get_movies()
-if not movies:
-    st.error("No movies loaded")
-    st.stop()
 
 # =========================
-# SIDEBAR
+# STATE INIT
 # =========================
+if "selected_movie_id" not in st.session_state:
+    st.session_state.selected_movie_id = None
 
 if "filters" not in st.session_state:
     st.session_state.filters = {
@@ -40,9 +35,26 @@ if "filters" not in st.session_state:
         "min_votes": 0,
     }
 
-with st.sidebar:
-    section, search_query, filters= render_sidebar(movies)
 
+# =========================
+# LOAD DATA
+# =========================
+movies = get_movies()
+if not movies:
+    st.error("No movies loaded")
+    st.stop()
+
+
+# =========================
+# SIDEBAR
+# =========================
+with st.sidebar:
+    section, search_query, filters = render_sidebar(movies)
+
+
+# =========================
+# FILTERING (BASE FILTERS)
+# =========================
 filtered_movies = filter_movies(
     movies,
     filters["year_range"],
@@ -50,21 +62,7 @@ filtered_movies = filter_movies(
     filters["min_votes"]
 )
 
-if section == "Discover":
-    render_discover(filtered_movies)
-
-
-if "selected_movie_id" not in st.session_state:
-    st.session_state.selected_movie_id = None
-
-if st.session_state.selected_movie_id:
-    render_movie_details(st.session_state.selected_movie_id)
-    st.stop()
-# =========================
-# FILTERING
-# =========================
-filters = st.session_state.filters
-
+# search filter
 if search_query:
     filtered_movies = [
         m for m in filtered_movies
@@ -75,27 +73,36 @@ if not filtered_movies:
     st.warning("No movies match the selected filters.")
     st.stop()
 
+
+# =========================
+# DATAFRAME SAFE CONVERSION
+# =========================
+df = build_movie_dataframe(filtered_movies)
+
+
+# =========================
+# ROUTING
+# =========================
+if st.session_state.selected_movie_id:
+    render_movie_details(st.session_state.selected_movie_id, df)
+    st.stop()
+
+
 # =========================
 # KPI
 # =========================
-
 metrics = calculate_metrics(filtered_movies)
 
 total_movies = metrics["total_movies"]
 avg_rating = metrics["avg_rating"]
 avg_popularity = metrics["avg_popularity"]
 
-# =========================
-# DATAFRAME SAFE CONVERSION
-# =========================
-
-df = build_movie_dataframe(filtered_movies)
 
 # =========================
 # DERIVED DATA
 # =========================
-
 chart_df, rating_split, genre_df = build_charts_data(df)
+
 
 # =========================
 # UI
@@ -103,7 +110,8 @@ chart_df, rating_split, genre_df = build_charts_data(df)
 main = st.container()
 
 with main:
-    st.title("🍿 Movie Analytics Dashboard")
+    st.title("? Movie Analytics Dashboard")
+
     st.markdown(
         """
         <p style="
@@ -119,9 +127,12 @@ with main:
     )
 
     if search_query:
-        st.info(f"🔎 Search results for: '{search_query}' ({len(filtered_movies)} movies)")
+        st.info(f"? Search results for: '{search_query}' ({len(filtered_movies)} movies)")
 
+
+    # =========================
     # KPI
+    # =========================
     k1, k2, k3, k4 = st.columns(4)
     render_kpis(
         total_movies,
@@ -132,7 +143,10 @@ with main:
 
     st.markdown("---")
 
+
+    # =========================
     # CHARTS
+    # =========================
     c1, c2, c3 = st.columns(3)
 
     with c1:
@@ -149,27 +163,34 @@ with main:
 
     st.markdown("---")
 
-    # TABLES SAFE
+
+    # =========================
+    # TABLES (TOP)
+    # =========================
     top_movies = df[
         df["vote_count"] >= 10000
-        ].sort_values("rating", ascending=False).head(10)
+    ].sort_values("rating", ascending=False).head(10)
+
     popular_movies = df.sort_values("popularity", ascending=False).head(10)
 
     t1, t2 = st.columns(2)
 
     with t1:
         st.subheader("Top Rated Movies")
-        top_movies_styled = style_movie_table(top_movies)
-        st.dataframe(top_movies_styled, width="stretch")
+        st.dataframe(style_movie_table(top_movies), width="stretch")
 
     with t2:
         st.subheader("Most Popular Movies")
-        popular_movies_styled = style_movie_table(popular_movies)
-        st.dataframe(popular_movies_styled, width="stretch")
+        st.dataframe(style_movie_table(popular_movies), width="stretch")
 
     st.markdown("---")
 
+
+    # =========================
+    # MOVIE LIST (CLICKABLE)
+    # =========================
     st.subheader("All Movies")
+
     page_size = 20
     total_pages = max(1, (len(df) - 1) // page_size + 1)
 
@@ -180,11 +201,11 @@ with main:
         value=1,
         step=1
     )
+
     start_idx = (page - 1) * page_size
     end_idx = start_idx + page_size
 
     paged_df = df.iloc[start_idx:end_idx]
-    paged_df_styled = style_movie_table(paged_df)
 
     for _, movie in paged_df.iterrows():
 
@@ -199,7 +220,9 @@ with main:
             st.subheader(movie["title"])
             st.write(f"⭐ {movie['rating']} | 🎬 {movie['year']}")
 
+            # 🔥 FIX: button nastaví state a okamžite rerun
             if st.button("Details", key=f"movie_{movie['id']}"):
                 st.session_state.selected_movie_id = movie["id"]
+                st.rerun()
 
     st.caption(f"Page {page} of {total_pages}")
