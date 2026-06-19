@@ -1,6 +1,10 @@
 import streamlit as st
 
 def render_movie_details(movie_id, df):
+    if st.button("⬅ Back to movies"):
+        st.session_state.selected_movie_id = None
+        st.session_state.app_mode = "list"
+        st.rerun()
 
     movie = df[df["id"] == movie_id].iloc[0]
 
@@ -17,6 +21,12 @@ def render_movie_details(movie_id, df):
         st.subheader("Overview")
         st.write(movie.get("overview", "No overview available"))
 
-        st.write(f"⭐ Rating: {movie['rating']}")
-        st.write(f"🎬 Year: {movie['year']}")
-        st.write(f"🔥 Popularity: {movie['popularity']}")
+        st.markdown(f"""
+        ### {movie['title']}
+
+        ⭐ **Rating:** {movie['rating']:.2f}  
+        📅 **Year:** {int(movie['year'])}  
+        🔥 **Popularity:** {movie['popularity']:.1f}
+
+        ---
+        """)

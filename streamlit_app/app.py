@@ -9,7 +9,6 @@ from services.dataframe_builder import build_movie_dataframe
 from services.charts_data import build_charts_data
 from components.table_styles import style_movie_table
 from components.sidebar import render_sidebar
-from streamlit_app.pages.discover import render_discover
 from streamlit_app.pages.movie_details import render_movie_details
 
 
@@ -21,6 +20,16 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# =========================
+# LOAD DATA
+# =========================
+movies = get_movies()
+if not movies:
+    st.error("No movies loaded")
+    st.stop()
+
+
 
 # =========================
 # STATE INIT
@@ -35,22 +44,29 @@ if "filters" not in st.session_state:
         "min_votes": 0,
     }
 
+if "app_mode" not in st.session_state:
+    st.session_state.app_mode = "list"  # list | detail
 
 # =========================
-# LOAD DATA
+# ROUTING
 # =========================
-movies = get_movies()
-if not movies:
-    st.error("No movies loaded")
+df = build_movie_dataframe(movies)
+if st.session_state.app_mode == "detail":
+    render_movie_details(st.session_state.selected_movie_id, df)
     st.stop()
+
 
 
 # =========================
 # SIDEBAR
 # =========================
-with st.sidebar:
-    section, search_query, filters = render_sidebar(movies)
 
+if st.session_state.app_mode == "list":
+    with st.sidebar:
+        section, search_query, filters = render_sidebar(movies)
+else:
+    search_query = None
+    filters = st.session_state.filters
 
 # =========================
 # FILTERING (BASE FILTERS)
@@ -78,15 +94,6 @@ if not filtered_movies:
 # DATAFRAME SAFE CONVERSION
 # =========================
 df = build_movie_dataframe(filtered_movies)
-
-
-# =========================
-# ROUTING
-# =========================
-if st.session_state.selected_movie_id:
-    render_movie_details(st.session_state.selected_movie_id, df)
-    st.stop()
-
 
 # =========================
 # KPI
@@ -220,9 +227,10 @@ with main:
             st.subheader(movie["title"])
             st.write(f"⭐ {movie['rating']} | 🎬 {movie['year']}")
 
-            # 🔥 FIX: button nastaví state a okamžite rerun
+
             if st.button("Details", key=f"movie_{movie['id']}"):
                 st.session_state.selected_movie_id = movie["id"]
+                st.session_state.app_mode = "detail"
                 st.rerun()
 
     st.caption(f"Page {page} of {total_pages}")
