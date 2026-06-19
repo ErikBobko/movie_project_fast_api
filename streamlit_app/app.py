@@ -9,6 +9,7 @@ from services.charts_data import build_charts_data
 from components.table_styles import style_movie_table
 from components.sidebar import render_sidebar
 from streamlit_app.pages.discover import render_discover
+from streamlit_app.pages.movie_details import render_movie_details
 
 # =========================
 # PAGE CONFIG
@@ -55,6 +56,10 @@ if section == "Discover":
 
 if "selected_movie_id" not in st.session_state:
     st.session_state.selected_movie_id = None
+
+if st.session_state.selected_movie_id:
+    render_movie_details(st.session_state.selected_movie_id)
+    st.stop()
 # =========================
 # FILTERING
 # =========================

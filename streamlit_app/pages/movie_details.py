@@ -1,3 +1,7 @@
+
 import streamlit as st
 
-st.title("Movie Details")
+def render_movie_details(movie_id):
+    st.title("Movie Details")
+
+    st.write(movie_id)
