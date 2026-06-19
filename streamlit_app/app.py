@@ -51,6 +51,10 @@ filtered_movies = filter_movies(
 
 if section == "Discover":
     render_discover(filtered_movies)
+
+
+if "selected_movie_id" not in st.session_state:
+    st.session_state.selected_movie_id = None
 # =========================
 # FILTERING
 # =========================
@@ -176,6 +180,21 @@ with main:
 
     paged_df = df.iloc[start_idx:end_idx]
     paged_df_styled = style_movie_table(paged_df)
-    st.dataframe(paged_df_styled, width="stretch")
+
+    for _, movie in paged_df.iterrows():
+
+        col1, col2 = st.columns([1, 4])
+
+        with col1:
+            if movie.get("poster_path"):
+                poster_url = f"https://image.tmdb.org/t/p/w200{movie['poster_path']}"
+                st.image(poster_url, width=80)
+
+        with col2:
+            st.subheader(movie["title"])
+            st.write(f"⭐ {movie['rating']} | 🎬 {movie['year']}")
+
+            if st.button("Details", key=f"movie_{movie['id']}"):
+                st.session_state.selected_movie_id = movie["id"]
 
     st.caption(f"Page {page} of {total_pages}")
