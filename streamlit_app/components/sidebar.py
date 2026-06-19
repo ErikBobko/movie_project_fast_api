@@ -15,6 +15,9 @@ def render_sidebar(movies):
     )
 
     # DEFAULT STATE
+    if "selected_movie_id" not in st.session_state:
+        st.session_state.selected_movie_id = None
+
     if "filters" not in st.session_state:
         st.session_state.filters = {
             "year_range": (1900, 2100),

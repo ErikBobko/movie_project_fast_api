@@ -4,8 +4,18 @@ def build_movie_dataframe(filtered_movies):
     df = pd.DataFrame(filtered_movies)
 
     expected_cols = [
-        "title", "year", "rating", "popularity",
-        "vote_count", "original_language", "runtime","category"
+        "id",
+        "tmdb_id",
+        "title",
+        "year",
+        "rating",
+        "popularity",
+        "vote_count",
+        "original_language",
+        "runtime",
+        "category",
+        "poster_path",
+        "overview",
     ]
 
     for col in expected_cols:
