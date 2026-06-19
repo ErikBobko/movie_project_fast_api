@@ -21,6 +21,10 @@ from models.movie import Movie
 
 app = FastAPI()
 
+@app.get("/")
+def root():
+    return {"message": "Movie API is running"}
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
