@@ -1,52 +1,53 @@
-import streamlit as st
-
-
 def render_sidebar(movies):
-    st.title("🎬 Movie Analytics")
+    import streamlit as st
+    from streamlit_option_menu import option_menu
+    from streamlit_app.pages.render_filters import render_filters_section
+    from streamlit_app.pages.discover import render_discover
 
-    st.markdown("""
-        <style>
-        div[data-testid="stContainer"] {
-            background: linear-gradient(135deg, #0f172a, #111827);
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 14px;
-            padding: 16px;
-            backdrop-filter: blur(10px);
+    st.markdown("## 🎬 Movie Dashboard")
+
+    section = option_menu(
+        menu_title=None,
+        options=["Overview", "Search", "Filters", "Discover", "About"],
+        icons=["house", "search", "funnel", "stars", "info-circle"],
+        default_index=0,
+        orientation="vertical",
+    )
+
+    # DEFAULT STATE
+    if "filters" not in st.session_state:
+        st.session_state.filters = {
+            "year_range": (1900, 2100),
+            "min_rating": 0.0,
+            "min_votes": 0,
         }
-        </style>
-        """, unsafe_allow_html=True)
 
-    years = sorted(
-        {m.get("year") for m in movies if m.get("year") is not None}
-    )
+    if "search_query" not in st.session_state:
+        st.session_state.search_query = ""
 
-    min_year = min(years)
-    max_year = max(years)
+    search_query = st.session_state.search_query
 
-    year_range = st.slider(
-        "Year Range",
-        min_value=min_year,
-        max_value=max_year,
-        value=(min_year, max_year)
-    )
+    # OVERVIEW
+    if section == "Overview":
+        st.subheader("Dataset Overview")
+        st.write(f"Movies loaded: {len(movies)}")
 
-    min_rating = st.slider(
-        "Minimum Rating",
-        0.0,
-        10.0,
-        5.0
-    )
+    # SEARCH
+    elif section == "Search":
+        st.subheader("🔎 Search Movies")
 
-    min_votes = st.slider(
-        "Minimum Votes",
-        0,
-        10000,
-        100
-    )
+        search_query = st.text_input("Search by title", key="search_query")
+        search_query = st.session_state.search_query
 
-    return {
-        "year_range": year_range,
-        "min_rating": min_rating,
-        "min_votes": min_votes,
-    }
+    # FILTERS
+    elif section == "Filters":
+        filters = render_filters_section(movies)
+        st.session_state.filters = filters
+
+    # ABOUT
+    elif section == "About":
+        st.subheader("About")
+        st.write("TMDB API")
+        st.write("Supabase")
+
+    return section, search_query, st.session_state.filters

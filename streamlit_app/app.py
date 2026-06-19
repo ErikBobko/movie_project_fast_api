@@ -7,13 +7,18 @@ from components.kpis import  render_kpis
 from services.dataframe_builder import build_movie_dataframe
 from services.charts_data import build_charts_data
 from components.table_styles import style_movie_table
+from components.sidebar import render_sidebar
+from streamlit_app.pages.discover import render_discover
 
 # =========================
 # PAGE CONFIG
 # =========================
 
-st.set_page_config(page_title="Movie Dashboard", layout="wide")
-
+st.set_page_config(
+    page_title="Movie Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 # =========================
 # LOAD DATA
 # =========================
@@ -27,25 +32,36 @@ if not movies:
 # SIDEBAR
 # =========================
 
-from components.sidebar import render_sidebar
+if "filters" not in st.session_state:
+    st.session_state.filters = {
+        "year_range": (1900, 2100),
+        "min_rating": 0.0,
+        "min_votes": 0,
+    }
 
 with st.sidebar:
-    filters = render_sidebar(movies)
-
-year_range = filters["year_range"]
-min_rating = filters["min_rating"]
-min_votes = filters["min_votes"]
-
-# =========================
-# FILTERING
-# =========================
+    section, search_query, filters= render_sidebar(movies)
 
 filtered_movies = filter_movies(
     movies,
-    year_range,
-    min_rating,
-    min_votes
+    filters["year_range"],
+    filters["min_rating"],
+    filters["min_votes"]
 )
+
+if section == "Discover":
+    render_discover(filtered_movies)
+# =========================
+# FILTERING
+# =========================
+filters = st.session_state.filters
+
+if search_query:
+    filtered_movies = [
+        m for m in filtered_movies
+        if search_query.lower() in m.get("title", "").lower()
+    ]
+
 if not filtered_movies:
     st.warning("No movies match the selected filters.")
     st.stop()
@@ -93,6 +109,9 @@ with main:
         unsafe_allow_html=True
     )
 
+    if search_query:
+        st.info(f"🔎 Search results for: '{search_query}' ({len(filtered_movies)} movies)")
+
     # KPI
     k1, k2, k3, k4 = st.columns(4)
     render_kpis(
@@ -122,7 +141,9 @@ with main:
     st.markdown("---")
 
     # TABLES SAFE
-    top_movies = df.sort_values("rating", ascending=False).head(10)
+    top_movies = df[
+        df["vote_count"] >= 10000
+        ].sort_values("rating", ascending=False).head(10)
     popular_movies = df.sort_values("popularity", ascending=False).head(10)
 
     t1, t2 = st.columns(2)
