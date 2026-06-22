@@ -1,5 +1,5 @@
 import streamlit as st
-from services.analytics import get_movie_cast
+from services.analytics import get_movie_cast,get_movie_crew
 
 
 
@@ -11,6 +11,7 @@ def render_movie_details(movie_id, df):
 
     movie = df[df["id"] == movie_id].iloc[0]
     cast = get_movie_cast(movie["tmdb_id"])
+    crew = get_movie_crew(movie["tmdb_id"])
 
     st.title(movie["title"])
 
@@ -36,6 +37,22 @@ def render_movie_details(movie_id, df):
         """)
 
     st.markdown("---")
+    st.subheader("Crew")
+
+    directors = crew.get("directors", [])
+    writers = crew.get("writers", [])
+    composers = crew.get("composers", [])
+
+    if directors:
+        st.write(f"🎬 Director: {', '.join(directors)}")
+
+    if writers:
+        st.write(f"✍️ Writer: {', '.join(writers)}")
+
+    if composers:
+        st.write(f"🎵 Composer: {', '.join(composers)}")
+
+    st.markdown("---")
     st.subheader("Cast")
 
     if not cast:
@@ -46,3 +63,4 @@ def render_movie_details(movie_id, df):
             character = actor.get("character")
 
             st.write(f"🎭 **{name}** as {character}")
+

@@ -87,3 +87,31 @@ def get_movie_cast(tmdb_id: int, limit: int = 10):
         }
         for actor in cast[:limit]
     ]
+
+def get_movie_crew_summary(tmdb_id: int):
+    credits = get_movie_credits(tmdb_id)
+    crew = credits.get("crew", [])
+
+    directors = [
+        person.get("name")
+        for person in crew
+        if person.get("job") == "Director"
+    ]
+
+    writers = [
+        person.get("name")
+        for person in crew
+        if person.get("department") == "Writing"
+    ]
+
+    composers = [
+        person.get("name")
+        for person in crew
+        if person.get("job") == "Original Music Composer"
+    ]
+
+    return {
+        "directors": list(dict.fromkeys(directors)),
+        "writers": list(dict.fromkeys(writers)),
+        "composers": list(dict.fromkeys(composers)),
+    }

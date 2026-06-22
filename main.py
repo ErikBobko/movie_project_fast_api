@@ -15,10 +15,10 @@ Dôležité:
 
 from pipelines.ingestion import  sync_popular_movies
 from fastapi import FastAPI
-from services.analytics import get_movies, get_top_rated, get_language_stats
+from services.analytics import  get_top_rated, get_language_stats
 from db import supabase
 from models.movie import Movie
-from clients.tmdb_client import get_movie_cast, get_movie_credits
+from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
 app = FastAPI()
 
 @app.get("/")
@@ -58,3 +58,7 @@ def get_cast(tmdb_id: int):
 @app.post("/sync/popular")
 def sync_movies():
     return sync_popular_movies()
+
+@app.get("/movies/{tmdb_id}/crew")
+def get_crew(tmdb_id: int):
+    return get_movie_crew_summary(tmdb_id)

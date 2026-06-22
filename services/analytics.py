@@ -77,3 +77,16 @@ def get_kpis():
         "total_movies": total_movies,
         "avg_rating": avg_rating
     }
+
+
+def get_movie_crew(tmdb_id: int):
+    try:
+        response = requests.get(f"{API_URL}/movies/{tmdb_id}/crew", timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException:
+        return {
+            "directors": [],
+            "writers": [],
+            "composers": []
+        }
