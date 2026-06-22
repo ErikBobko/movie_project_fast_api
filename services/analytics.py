@@ -13,6 +13,13 @@ Dôležité:
 """
 
 from db import supabase
+API_URL = "http://127.0.0.1:8000"
+import requests
+
+def get_movie_cast(tmdb_id: int):
+    response = requests.get(f"{API_URL}/movies/{tmdb_id}/cast")
+    response.raise_for_status()
+    return response.json()
 
 
 def get_top_rated(limit=10):

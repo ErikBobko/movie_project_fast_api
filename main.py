@@ -18,7 +18,7 @@ from fastapi import FastAPI
 from services.analytics import get_movies, get_top_rated, get_language_stats
 from db import supabase
 from models.movie import Movie
-
+from clients.tmdb_client import get_movie_cast, get_movie_credits
 app = FastAPI()
 
 @app.get("/")
@@ -50,6 +50,10 @@ def get_movies():
 def get_movie(tmdb_id: int):
     print("tmdb_id:", tmdb_id, type(tmdb_id))
     return (supabase.table("movies").select("*").eq("tmdb_id", tmdb_id).maybe_single().execute().data )
+
+@app.get("/movies/{tmdb_id}/cast")
+def get_cast(tmdb_id: int):
+    return get_movie_cast(tmdb_id)
 
 @app.post("/sync/popular")
 def sync_movies():

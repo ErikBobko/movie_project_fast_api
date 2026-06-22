@@ -15,6 +15,7 @@ Je to API client pre TMDB.
 
 import requests
 from config import TMDB_API_KEY
+from services.analytics import get_movie_cast
 
 BASE_URL = "https://api.themoviedb.org/3"
 
@@ -58,3 +59,31 @@ def get_movie_details(tmdb_id: int):
         f"{BASE_URL}/movie/{tmdb_id}",
         params={"api_key": TMDB_API_KEY}
     ).json()
+
+
+def get_movie_credits(tmdb_id: int):
+    response = requests.get(
+        f"{BASE_URL}/movie/{tmdb_id}/credits",
+        params={
+            "api_key": TMDB_API_KEY,
+            "language": "en-US",
+        }
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def get_movie_cast(tmdb_id: int, limit: int = 10):
+    credits = get_movie_credits(tmdb_id)
+    cast = credits.get("cast", [])
+
+    return [
+        {
+            "id": actor.get("id"),
+            "name": actor.get("name"),
+            "character": actor.get("character"),
+            "profile_path": actor.get("profile_path"),
+            "order": actor.get("order"),
+        }
+        for actor in cast[:limit]
+    ]

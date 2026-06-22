@@ -1,4 +1,7 @@
 import streamlit as st
+from services.analytics import get_movie_cast
+
+
 
 def render_movie_details(movie_id, df):
     if st.button("⬅ Back to movies"):
@@ -7,6 +10,7 @@ def render_movie_details(movie_id, df):
         st.rerun()
 
     movie = df[df["id"] == movie_id].iloc[0]
+    cast = get_movie_cast(movie["tmdb_id"])
 
     st.title(movie["title"])
 
@@ -30,3 +34,15 @@ def render_movie_details(movie_id, df):
 
         ---
         """)
+
+    st.markdown("---")
+    st.subheader("Cast")
+
+    if not cast:
+        st.write("No cast available.")
+    else:
+        for actor in cast:
+            name = actor.get("name")
+            character = actor.get("character")
+
+            st.write(f"🎭 **{name}** as {character}")
