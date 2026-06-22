@@ -19,6 +19,7 @@ from clients.tmdb_client import (
     get_popular_movies,
     get_genres,
     get_movie_details,
+    get_movie_cast,
 )
 
 from pipelines.movie_transformer import (build_genre_map, transform_movie)
@@ -64,4 +65,50 @@ def sync_popular_movies(pages: int = 1):
         .execute()
     )
 
-    return response.data
+    saved_movies = response.data
+
+    movie_id_by_tmdb_id = {
+        movie["tmdb_id"]: movie["id"]
+        for movie in saved_movies
+    }
+
+    for movie in saved_movies:
+        tmdb_id = movie["tmdb_id"]
+        db_movie_id = movie["id"]
+
+        cast = get_movie_cast(tmdb_id, limit=10)
+
+        for actor in cast:
+            actor_payload = {
+                "tmdb_actor_id": actor["id"],
+                "name": actor["name"],
+                "profile_path": actor["profile_path"],
+            }
+
+            actor_response = (
+                supabase
+                .table("actors")
+                .upsert(
+                    actor_payload,
+                    on_conflict="tmdb_actor_id"
+                )
+                .execute()
+            )
+
+            saved_actor = actor_response.data[0]
+
+            relation_payload = {
+                "movie_id": db_movie_id,
+                "actor_id": saved_actor["id"],
+                "character": actor["character"],
+                "cast_order": actor["order"],
+            }
+
+            supabase.table("movie_actors").upsert(
+                relation_payload,
+                on_conflict="movie_id,actor_id"
+            ).execute()
+
+    return {
+        "movies_synced": len(saved_movies),
+    }
