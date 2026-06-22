@@ -59,8 +59,18 @@ def render_movie_details(movie_id, df):
         st.write("No cast available.")
     else:
         for actor in cast:
-            name = actor.get("name")
-            character = actor.get("character")
+            col_img, col_info = st.columns([1, 5])
 
-            st.write(f"🎭 **{name}** as {character}")
+            with col_img:
+                profile_path = actor.get("profile_path")
+
+                if profile_path:
+                    profile_url = f"https://image.tmdb.org/t/p/w185{profile_path}"
+                    st.image(profile_url, width=80)
+                else:
+                    st.write("🎭")
+
+            with col_info:
+                st.markdown(f"**{actor.get('name', 'Unknown actor')}**")
+                st.caption(f"as {actor.get('character', 'Unknown role')}")
 
