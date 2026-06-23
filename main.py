@@ -20,7 +20,7 @@ from db import supabase
 from models.movie import Movie
 from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
 from pipelines.cast_sync import sync_movie_casts , sync_missing_movie_casts
-
+from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id
 
 app = FastAPI()
 
@@ -57,6 +57,14 @@ def get_cast(tmdb_id: int):
 def get_crew(tmdb_id: int):
     return get_movie_crew_summary(tmdb_id)
 
+@app.get("/actors/{tmdb_actor_id}")
+def get_actor(tmdb_actor_id: int):
+    return get_actor_by_tmdb_id(tmdb_actor_id)
+
+@app.get("/actors/{tmdb_actor_id}/movies")
+def get_actor_movies(tmdb_actor_id: int):
+    return get_actor_movies_by_tmdb_id(tmdb_actor_id)
+
 @app.post("/sync/casts")
 def sync_casts(limit: int = 100, offset: int = 0):
     return sync_movie_casts(limit=limit, offset=offset)
@@ -73,3 +81,4 @@ def create_movie(movie: Movie):
 @app.post("/sync/casts/missing")
 def sync_missing_casts(limit: int = 100):
     return sync_missing_movie_casts(limit)
+

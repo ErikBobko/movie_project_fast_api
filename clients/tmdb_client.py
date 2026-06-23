@@ -15,7 +15,6 @@ Je to API client pre TMDB.
 
 import requests
 from config import TMDB_API_KEY
-from services.analytics import get_movie_cast
 
 BASE_URL = "https://api.themoviedb.org/3"
 
