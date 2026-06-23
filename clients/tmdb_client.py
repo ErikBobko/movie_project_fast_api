@@ -61,16 +61,28 @@ def get_movie_details(tmdb_id: int):
     ).json()
 
 
-def get_movie_credits(tmdb_id: int):
-    response = requests.get(
-        f"{BASE_URL}/movie/{tmdb_id}/credits",
-        params={
-            "api_key": TMDB_API_KEY,
-            "language": "en-US",
-        }
-    )
-    response.raise_for_status()
-    return response.json()
+def get_movie_credits(tmdb_id: int) -> dict:
+    url = f"{BASE_URL}/movie/{tmdb_id}/credits"
+
+    try:
+        response = requests.get(
+            url,
+            params={
+                "api_key": TMDB_API_KEY,
+                "language": "en-US",
+            },
+            timeout=10,
+        )
+
+        if response.status_code == 404:
+            return {"cast": []}
+
+        response.raise_for_status()
+        return response.json()
+
+    except requests.RequestException as e:
+        print(f"TMDB credits error for movie {tmdb_id}: {e}")
+        return {"cast": []}
 
 
 def get_movie_cast(tmdb_id: int, limit: int = 10):

@@ -2,63 +2,107 @@ from clients.tmdb_client import get_movie_cast
 from db import supabase
 
 
-def sync_movie_casts(limit: int | None = None):
-    query = (
+def _sync_cast_for_movie(movie):
+    db_movie_id = movie["id"]
+    tmdb_id = movie["tmdb_id"]
+
+    actors_synced = 0
+    relations_synced = 0
+
+    cast = get_movie_cast(tmdb_id, limit=10)
+
+    for actor in cast:
+        actor_payload = {
+            "tmdb_actor_id": actor["id"],
+            "name": actor["name"],
+            "profile_path": actor["profile_path"],
+        }
+
+        actor_response = (
+            supabase
+            .table("actors")
+            .upsert(actor_payload, on_conflict="tmdb_actor_id")
+            .execute()
+        )
+
+        if not actor_response.data:
+            continue
+
+        saved_actor = actor_response.data[0]
+
+        relation_payload = {
+            "movie_id": db_movie_id,
+            "actor_id": saved_actor["id"],
+            "character": actor["character"],
+            "cast_order": actor["order"],
+        }
+
+        supabase.table("movie_actors").upsert(
+            relation_payload,
+            on_conflict="movie_id,actor_id"
+        ).execute()
+
+        actors_synced += 1
+        relations_synced += 1
+
+    
+    supabase.table("movies").update(
+        {"cast_synced": True}
+    ).eq("id", db_movie_id).execute()
+
+    return actors_synced, relations_synced
+
+
+def sync_movie_casts(limit: int = 100, offset: int = 0):
+    movies = (
         supabase
         .table("movies")
         .select("id, tmdb_id, title")
         .order("id")
+        .range(offset, offset + limit - 1)
+        .execute()
+        .data
     )
-
-    if limit:
-        query = query.limit(limit)
-
-    movies = query.execute().data
 
     movies_synced = 0
     actors_synced = 0
     relations_synced = 0
 
     for movie in movies:
-        db_movie_id = movie["id"]
-        tmdb_id = movie["tmdb_id"]
+        actor_count, relation_count = _sync_cast_for_movie(movie)
 
-        cast = get_movie_cast(tmdb_id, limit=10)
+        actors_synced += actor_count
+        relations_synced += relation_count
+        movies_synced += 1
 
-        for actor in cast:
-            actor_payload = {
-                "tmdb_actor_id": actor["id"],
-                "name": actor["name"],
-                "profile_path": actor["profile_path"],
-            }
+    return {
+        "movies_synced": movies_synced,
+        "actors_processed": actors_synced,
+        "relations_synced": relations_synced,
+    }
 
-            actor_response = (
-                supabase
-                .table("actors")
-                .upsert(actor_payload, on_conflict="tmdb_actor_id")
-                .execute()
-            )
 
-            if not actor_response.data:
-                continue
+def sync_missing_movie_casts(limit: int = 100):
+    movies = (
+        supabase
+        .table("movies")
+        .select("id, tmdb_id, title, cast_synced")
+        .eq("cast_synced", False)
+        .order("id")
+        .limit(limit)
+        .execute()
+        .data
+    )
 
-            saved_actor = actor_response.data[0]
+    movies_synced = 0
+    actors_synced = 0
+    relations_synced = 0
 
-            relation_payload = {
-                "movie_id": db_movie_id,
-                "actor_id": saved_actor["id"],
-                "character": actor["character"],
-                "cast_order": actor["order"],
-            }
+    for movie in movies:
+        actor_count, relation_count = _sync_cast_for_movie(movie)
 
-            supabase.table("movie_actors").upsert(
-                relation_payload,
-                on_conflict="movie_id,actor_id"
-            ).execute()
-
-            actors_synced += 1
-            relations_synced += 1
-
+        actors_synced += actor_count
+        relations_synced += relation_count
         movies_synced += 1
 
     return {

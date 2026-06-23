@@ -19,6 +19,9 @@ from services.analytics import  get_top_rated, get_language_stats
 from db import supabase
 from models.movie import Movie
 from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
+from pipelines.cast_sync import sync_movie_casts , sync_missing_movie_casts
+
+
 app = FastAPI()
 
 @app.get("/")
@@ -37,11 +40,6 @@ def top_rated():
 def languages():
     return get_language_stats()
 
-@app.post("/movies")
-def create_movie(movie: Movie):
-    response = supabase.table("movies").insert(movie.model_dump()).execute()
-    return response.data
-
 @app.get("/movies")
 def get_movies():
     return supabase.table("movies").select("*").execute().data
@@ -55,10 +53,23 @@ def get_movie(tmdb_id: int):
 def get_cast(tmdb_id: int):
     return get_movie_cast(tmdb_id)
 
+@app.get("/movies/{tmdb_id}/crew")
+def get_crew(tmdb_id: int):
+    return get_movie_crew_summary(tmdb_id)
+
+@app.post("/sync/casts")
+def sync_casts(limit: int = 100, offset: int = 0):
+    return sync_movie_casts(limit=limit, offset=offset)
+
 @app.post("/sync/popular")
 def sync_movies():
     return sync_popular_movies()
 
-@app.get("/movies/{tmdb_id}/crew")
-def get_crew(tmdb_id: int):
-    return get_movie_crew_summary(tmdb_id)
+@app.post("/movies")
+def create_movie(movie: Movie):
+    response = supabase.table("movies").insert(movie.model_dump()).execute()
+    return response.data
+
+@app.post("/sync/casts/missing")
+def sync_missing_casts(limit: int = 100):
+    return sync_missing_movie_casts(limit)
