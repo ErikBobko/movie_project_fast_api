@@ -45,7 +45,7 @@ def get_movies():
         supabase
         .table("movies")
         .select("*")
-        .limit(1000)
+        .range(0, 11000)
         .execute()
     )
 
@@ -107,3 +107,11 @@ def get_actor_movies(tmdb_actor_id: int):
         return response.json()
     except requests.RequestException:
         return []
+
+def get_movie_by_id(movie_id: int):
+    try:
+        response = requests.get(f"{API_URL}/movies/by-id/{movie_id}", timeout=5)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException:
+        return None

@@ -21,6 +21,7 @@ from models.movie import Movie
 from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
 from pipelines.cast_sync import sync_movie_casts , sync_missing_movie_casts
 from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id
+from services.movies import get_movie_by_id
 
 app = FastAPI()
 
@@ -64,6 +65,10 @@ def get_actor(tmdb_actor_id: int):
 @app.get("/actors/{tmdb_actor_id}/movies")
 def get_actor_movies(tmdb_actor_id: int):
     return get_actor_movies_by_tmdb_id(tmdb_actor_id)
+
+@app.get("/movies/by-id/{movie_id}")
+def movie_by_id(movie_id: int):
+    return get_movie_by_id(movie_id)
 
 @app.post("/sync/casts")
 def sync_casts(limit: int = 100, offset: int = 0):

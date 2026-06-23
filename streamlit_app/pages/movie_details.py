@@ -1,15 +1,21 @@
 import streamlit as st
 from services.analytics import get_movie_cast,get_movie_crew
+from services.analytics import get_movie_by_id
 
 
 
-def render_movie_details(movie_id, df):
-    if st.button("⬅ Back to movies"):
+def render_movie_details(movie_id):
+    if st.button("⬅ Back to movies", key="back_to_movies_from_detail"):
         st.session_state.selected_movie_id = None
         st.session_state.app_mode = "list"
         st.rerun()
 
-    movie = df[df["id"] == movie_id].iloc[0]
+    movie = get_movie_by_id(movie_id)
+
+    if not movie:
+        st.error(f"Movie not found. movie_id={movie_id}")
+        return
+
     cast = get_movie_cast(movie["tmdb_id"])
     crew = get_movie_crew(movie["tmdb_id"])
 

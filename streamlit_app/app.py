@@ -57,7 +57,7 @@ if "app_mode" not in st.session_state:
 df = build_movie_dataframe(movies)
 
 if st.session_state.app_mode == "detail":
-    render_movie_details(st.session_state.selected_movie_id, df)
+    render_movie_details(st.session_state.selected_movie_id)
     st.stop()
 
 if st.session_state.app_mode == "actor_detail":
