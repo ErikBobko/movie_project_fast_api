@@ -71,6 +71,16 @@ def render_movie_details(movie_id, df):
                     st.write("🎭")
 
             with col_info:
-                st.markdown(f"**{actor.get('name', 'Unknown actor')}**")
+                actor_name = actor.get("name", "Unknown actor")
+                actor_id = actor.get("id")
+
+                if actor_id:
+                    if st.button(actor_name, key=f"actor_{actor_id}_{movie_id}"):
+                        st.session_state.selected_actor_id = actor_id
+                        st.session_state.app_mode = "actor_detail"
+                        st.rerun()
+                else:
+                    st.markdown(f"**{actor_name}**")
+
                 st.caption(f"as {actor.get('character', 'Unknown role')}")
 

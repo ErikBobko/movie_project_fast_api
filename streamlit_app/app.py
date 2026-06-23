@@ -10,6 +10,7 @@ from services.charts_data import build_charts_data
 from components.table_styles import style_movie_table
 from components.sidebar import render_sidebar
 from streamlit_app.pages.movie_details import render_movie_details
+from streamlit_app.pages.actor_details import render_actor_details
 
 
 # =========================
@@ -37,6 +38,9 @@ if not movies:
 if "selected_movie_id" not in st.session_state:
     st.session_state.selected_movie_id = None
 
+if "selected_actor_id" not in st.session_state:
+    st.session_state.selected_actor_id = None
+
 if "filters" not in st.session_state:
     st.session_state.filters = {
         "year_range": (1900, 2100),
@@ -51,10 +55,14 @@ if "app_mode" not in st.session_state:
 # ROUTING
 # =========================
 df = build_movie_dataframe(movies)
+
 if st.session_state.app_mode == "detail":
     render_movie_details(st.session_state.selected_movie_id, df)
     st.stop()
 
+if st.session_state.app_mode == "actor_detail":
+    render_actor_details(st.session_state.selected_actor_id)
+    st.stop()
 
 
 # =========================
