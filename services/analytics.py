@@ -11,7 +11,7 @@ Dôležité:
 - nemení dáta v databáze
 - pracuje iba s uloženými dátami
 """
-
+import streamlit as st
 from db import supabase
 
 def get_top_rated(limit=10):
@@ -31,7 +31,7 @@ def get_language_stats():
     response = supabase.table("movies").select("*").limit(1).execute()
     return response.data
 
-
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_movies():
     response = (
         supabase
