@@ -30,13 +30,7 @@ def render_actor_details(tmdb_actor_id):
     col1, col2 = st.columns([1, 3])
 
     with col1:
-        profile_path = actor.get("profile_path")
-
-        if profile_path:
-            profile_url = f"https://image.tmdb.org/t/p/w300{profile_path}"
-            st.image(profile_url)
-        else:
-            st.write("🎭")
+        render_actor_profile_image(actor.get("profile_path"))
 
     with col2:
         st.title(actor.get("name", "Unknown actor"))
@@ -84,3 +78,28 @@ def render_actor_details(tmdb_actor_id):
                 f"📅 {movie.get('release_date', 'Unknown date')}"
             )
 
+
+def render_actor_profile_image(profile_path):
+    if profile_path:
+        profile_url = f"https://image.tmdb.org/t/p/w300{profile_path}"
+        st.image(profile_url)
+    else:
+        st.markdown(
+            """
+            <div style="
+                width:220px;
+                height:300px;
+                border-radius:12px;
+                background:#1F2937;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:72px;
+                color:#9CA3AF;
+                border:1px solid #374151;
+            ">
+                🎭
+            </div>
+            """,
+            unsafe_allow_html=True
+        )

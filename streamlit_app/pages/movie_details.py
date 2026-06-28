@@ -68,13 +68,7 @@ def render_movie_details(movie_id):
             col_img, col_info = st.columns([1, 5])
 
             with col_img:
-                profile_path = actor.get("profile_path")
-
-                if profile_path:
-                    profile_url = f"https://image.tmdb.org/t/p/w185{profile_path}"
-                    st.image(profile_url, width=80)
-                else:
-                    st.write("🎭")
+                render_small_actor_image(actor.get("profile_path"), width=80)
 
             with col_info:
                 actor_name = actor.get("name", "Unknown actor")
@@ -95,3 +89,28 @@ def render_movie_details(movie_id):
 
                 st.caption(f"as {actor.get('character', 'Unknown role')}")
 
+
+def render_small_actor_image(profile_path, width=70):
+    if profile_path:
+        image_url = f"https://image.tmdb.org/t/p/w185{profile_path}"
+        st.image(image_url, width=width)
+    else:
+        st.markdown(
+            f"""
+            <div style="
+                width:{width}px;
+                height:{int(width * 1.35)}px;
+                border-radius:8px;
+                background:#1F2937;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:28px;
+                color:#9CA3AF;
+                border:1px solid #374151;
+            ">
+                🎭
+            </div>
+            """,
+            unsafe_allow_html=True
+        )

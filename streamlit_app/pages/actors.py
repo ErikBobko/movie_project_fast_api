@@ -181,14 +181,7 @@ def render_actors_page():
         col1, col2 = st.columns([1, 4])
 
         with col1:
-
-            if actor.get("profile_path"):
-                image_url = (
-                    f"https://image.tmdb.org/t/p/w200"
-                    f"{actor['profile_path']}"
-                )
-
-                st.image(image_url, width=80)
+            render_actor_image(actor.get("profile_path"), width=80)
 
         with col2:
 
@@ -200,3 +193,28 @@ def render_actors_page():
                 st.session_state.active_section = "Actors"
                 st.session_state.app_mode = "actor_detail"
                 st.rerun()
+
+def render_actor_image(profile_path, width=80):
+    if profile_path:
+        image_url = f"https://image.tmdb.org/t/p/w200{profile_path}"
+        st.image(image_url, width=width)
+    else:
+        st.markdown(
+            f"""
+            <div style="
+                width:{width}px;
+                height:{int(width * 1.35)}px;
+                border-radius:8px;
+                background:#1F2937;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                font-size:32px;
+                color:#9CA3AF;
+                border:1px solid #374151;
+            ">
+                🎭
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
