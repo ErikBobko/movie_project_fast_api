@@ -155,21 +155,29 @@ def render_actors_page():
                 use_container_width=True
             )
 
-    st.divider()
+    with st.expander("Show raw analytics tables"):
+        t1, t2, t3 = st.columns(3)
 
-    t1, t2, t3 = st.columns(3)
+        with t1:
+            st.subheader("Top Actors by Movie Count")
+            st.dataframe(
+                style_actor_table(top_df[["name", "movie_count"]]),
+                use_container_width=True
+            )
 
-    with t1:
-        st.subheader("Top Actors by Movie Count")
-        st.dataframe(style_actor_table(top_df), use_container_width=True)
+        with t2:
+            st.subheader("Highest Rated Actors")
+            st.dataframe(
+                style_actor_table(rated_df[["name", "movie_count", "avg_rating"]]),
+                use_container_width=True
+            )
 
-    with t2:
-        st.subheader("Highest Rated Actors")
-        st.dataframe(style_actor_table(rated_df), use_container_width=True)
-
-    with t3:
-        st.subheader("Most Popular Actors")
-        st.dataframe(style_actor_table(popular_df), use_container_width=True)
+        with t3:
+            st.subheader("Most Popular Actors")
+            st.dataframe(
+                style_actor_table(popular_df[["name", "movie_count", "avg_popularity"]]),
+                use_container_width=True
+            )
 
     st.divider()
 
