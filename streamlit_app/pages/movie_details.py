@@ -84,6 +84,11 @@ def render_movie_details(movie_id):
                     if st.button(actor_name, key=f"actor_{actor_id}_{movie_id}"):
                         st.session_state.selected_actor_id = actor_id
                         st.session_state.app_mode = "actor_detail"
+                        st.session_state.previous_page = "movie_detail"
+                        st.session_state.previous_section = st.session_state.get(
+                            "active_section",
+                            "Overview"
+                        )
                         st.rerun()
                 else:
                     st.markdown(f"**{actor_name}**")

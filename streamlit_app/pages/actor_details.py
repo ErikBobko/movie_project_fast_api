@@ -3,9 +3,21 @@ from services.api_client import get_actor, get_actor_movies
 
 
 def render_actor_details(tmdb_actor_id):
-    if st.button("⬅ Back to movie"):
-        st.session_state.app_mode = "detail"
+    if st.button("Back", key="actor_detail_back_button"):
+
         st.session_state.selected_actor_id = None
+
+        if st.session_state.get("previous_page") == "actors":
+            st.session_state.active_section = "Actors"
+            st.session_state.app_mode = "list"
+
+        elif st.session_state.get("previous_page") == "movie_detail":
+            st.session_state.active_section = st.session_state.get(
+                "previous_section",
+                "Overview"
+            )
+            st.session_state.app_mode = "detail"
+
         st.rerun()
 
     actor = get_actor(tmdb_actor_id)
@@ -72,7 +84,3 @@ def render_actor_details(tmdb_actor_id):
                 f"📅 {movie.get('release_date', 'Unknown date')}"
             )
 
-            if st.button("Movie Details", key=f"actor_movie_{movie['id']}"):
-                st.session_state.selected_movie_id = movie["id"]
-                st.session_state.app_mode = "detail"
-                st.rerun()

@@ -5,13 +5,22 @@ def render_sidebar(movies):
 
     st.markdown("## 🎬 Movie Dashboard")
 
+    options = ["Overview", "Search", "Filters", "Discover", "Actors", "About"]
+
+    if "active_section" not in st.session_state:
+        st.session_state.active_section = "Overview"
+
+    default_index = options.index(st.session_state.active_section)
+
     section = option_menu(
         menu_title=None,
-        options=["Overview", "Search", "Filters", "Discover", "Actors","About"],
-        icons=["house", "search", "funnel", "stars", "info-circle"],
-        default_index=0,
+        options=options,
+        icons=["house", "search", "funnel", "stars", "person", "info-circle"],
+        default_index=default_index,
         orientation="vertical",
     )
+
+    st.session_state.active_section = section
 
     # DEFAULT STATE
     if "selected_movie_id" not in st.session_state:

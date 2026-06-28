@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 
-from services.api_client import get_top_actors, get_highest_rated_actors,get_most_popular_actors
+from services.api_client import get_top_actors, get_highest_rated_actors,get_most_popular_actors,get_all_actors
 
 
 def style_actor_table(df):
@@ -48,6 +48,7 @@ def render_actors_page():
     top_actors = get_top_actors()
     highest_rated_actors = get_highest_rated_actors()
     most_popular_actors = get_most_popular_actors()
+    all_actors = get_all_actors(limit=50)
 
     if not top_actors:
         st.warning("No actor analytics data available.")
@@ -171,3 +172,31 @@ def render_actors_page():
         st.subheader("Most Popular Actors")
         st.dataframe(style_actor_table(popular_df), use_container_width=True)
 
+    st.divider()
+
+    st.subheader("All Actors")
+
+    for actor in all_actors:
+
+        col1, col2 = st.columns([1, 4])
+
+        with col1:
+
+            if actor.get("profile_path"):
+                image_url = (
+                    f"https://image.tmdb.org/t/p/w200"
+                    f"{actor['profile_path']}"
+                )
+
+                st.image(image_url, width=80)
+
+        with col2:
+
+            st.write(f"### {actor['name']}")
+
+            if st.button("Actor Details", key=f"actor_{actor['tmdb_actor_id']}"):
+                st.session_state.selected_actor_id = actor["tmdb_actor_id"]
+                st.session_state.previous_page = "actors"
+                st.session_state.active_section = "Actors"
+                st.session_state.app_mode = "actor_detail"
+                st.rerun()
