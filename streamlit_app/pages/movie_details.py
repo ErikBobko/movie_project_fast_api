@@ -1,6 +1,6 @@
 import streamlit as st
-from services.analytics import get_movie_cast,get_movie_crew
-from services.analytics import get_movie_by_id
+from services.api_client import get_movie_cast,get_movie_crew
+from services.api_client import get_movie_by_id
 
 
 

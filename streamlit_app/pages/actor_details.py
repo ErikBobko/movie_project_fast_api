@@ -1,5 +1,5 @@
 import streamlit as st
-from services.analytics import get_actor, get_actor_movies
+from services.api_client import get_actor, get_actor_movies
 
 
 def render_actor_details(tmdb_actor_id):
