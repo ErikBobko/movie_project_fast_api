@@ -45,3 +45,11 @@ def get_movie_by_id(movie_id: int):
         return response.json()
     except requests.RequestException:
         return None
+
+def get_actor_analytics():
+    try:
+        response = requests.get(f"{API_URL}/analytics/actors", timeout=10)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException:
+        return []

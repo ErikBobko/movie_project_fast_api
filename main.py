@@ -22,6 +22,7 @@ from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
 from pipelines.cast_sync import sync_movie_casts , sync_missing_movie_casts
 from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id
 from services.movies import get_movie_by_id
+from services.actor_analytics import get_actor_analytics
 
 app = FastAPI()
 
@@ -86,4 +87,8 @@ def create_movie(movie: Movie):
 @app.post("/sync/casts/missing")
 def sync_missing_casts(limit: int = 100):
     return sync_missing_movie_casts(limit)
+
+@app.get("/analytics/actors")
+def actor_analytics():
+    return get_actor_analytics()
 
