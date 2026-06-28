@@ -65,3 +65,15 @@ def get_top_actors():
 
     except requests.RequestException:
         return []
+
+def get_highest_rated_actors():
+    try:
+        response = requests.get(
+            f"{API_URL}/analytics/actors/highest-rated",
+            timeout=10
+        )
+        response.raise_for_status()
+        return response.json()
+
+    except requests.RequestException:
+        return []
