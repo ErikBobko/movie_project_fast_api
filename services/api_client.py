@@ -53,3 +53,15 @@ def get_actor_analytics():
         return response.json()
     except requests.RequestException:
         return []
+
+def get_top_actors():
+    try:
+        response = requests.get(
+            f"{API_URL}/analytics/actors/top",
+            timeout=10
+        )
+        response.raise_for_status()
+        return response.json()
+
+    except requests.RequestException:
+        return []

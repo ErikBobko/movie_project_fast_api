@@ -1,32 +1,43 @@
 from db import supabase
 
 
-def get_actor_analytics():
+def get_top_actors_by_movie_count():
     response = (
         supabase
         .table("movie_actors")
         .select(
             """
-            id,
-            character,
-            cast_order,
+            actor_id,
             actors (
-                id,
-                tmdb_actor_id,
-                name,
-                profile_path
-            ),
-            movies (
-                id,
-                tmdb_id,
-                title,
-                rating,
-                popularity,
-                year
+                name
             )
             """
         )
         .execute()
     )
 
-    return response.data
+    data = response.data
+
+    actor_counts = {}
+
+    for row in data:
+        actor = row["actors"]
+
+        if not actor:
+            continue
+
+        name = actor["name"]
+
+        actor_counts[name] = actor_counts.get(name, 0) + 1
+
+    result = [
+        {"name": name, "movie_count": count}
+        for name, count in actor_counts.items()
+    ]
+
+    result.sort(
+        key=lambda x: x["movie_count"],
+        reverse=True
+    )
+
+    return result[:10]
