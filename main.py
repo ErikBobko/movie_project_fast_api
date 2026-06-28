@@ -22,7 +22,7 @@ from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
 from pipelines.cast_sync import sync_movie_casts , sync_missing_movie_casts
 from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id
 from services.movies import get_movie_by_id
-from services.actor_analytics import get_top_actors_by_movie_count
+from services.actor_analytics import get_top_actors_by_movie_count,get_highest_rated_actors
 
 app = FastAPI()
 
@@ -91,4 +91,8 @@ def sync_missing_casts(limit: int = 100):
 @app.get("/analytics/actors/top")
 def top_actors():
     return get_top_actors_by_movie_count()
+
+@app.get("/analytics/actors/highest-rated")
+def highest_rated_actors():
+    return get_highest_rated_actors()
 
