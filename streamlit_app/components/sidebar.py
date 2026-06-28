@@ -18,9 +18,12 @@ def render_sidebar(movies):
         icons=["house", "search", "funnel", "stars", "person", "info-circle"],
         default_index=default_index,
         orientation="vertical",
+        key="main_sidebar_menu",
     )
 
-    st.session_state.active_section = section
+    if section != st.session_state.active_section:
+        st.session_state.active_section = section
+        st.rerun()
 
     # DEFAULT STATE
     if "selected_movie_id" not in st.session_state:
