@@ -11,6 +11,7 @@ from components.table_styles import style_movie_table
 from components.sidebar import render_sidebar
 from streamlit_app.pages.movie_details import render_movie_details
 from streamlit_app.pages.actor_details import render_actor_details
+from pages.actors import render_actors_page
 
 
 # =========================
@@ -69,12 +70,21 @@ if st.session_state.app_mode == "actor_detail":
 # SIDEBAR
 # =========================
 
+# =========================
+# SIDEBAR
+# =========================
+
 if st.session_state.app_mode == "list":
     with st.sidebar:
         section, search_query, filters = render_sidebar(movies)
 else:
     search_query = None
     filters = st.session_state.filters
+    section = "Overview"
+
+if section == "Actors":
+    render_actors_page()
+    st.stop()
 
 # =========================
 # FILTERING (BASE FILTERS)

@@ -2,13 +2,12 @@ def render_sidebar(movies):
     import streamlit as st
     from streamlit_option_menu import option_menu
     from streamlit_app.pages.render_filters import render_filters_section
-    from streamlit_app.pages.discover import render_discover
 
     st.markdown("## 🎬 Movie Dashboard")
 
     section = option_menu(
         menu_title=None,
-        options=["Overview", "Search", "Filters", "Discover", "About"],
+        options=["Overview", "Search", "Filters", "Discover", "Actors","About"],
         icons=["house", "search", "funnel", "stars", "info-circle"],
         default_index=0,
         orientation="vertical",
