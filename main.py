@@ -60,9 +60,8 @@ def get_crew(tmdb_id: int):
     return get_movie_crew_summary(tmdb_id)
 
 @app.get("/actors")
-def all_actors(limit: int = 100):
-    return get_all_actors(limit)
-
+def all_actors(limit: int = 50, search: str | None = None):
+    return get_all_actors(limit=limit, search=search)
 
 @app.get("/actors/{tmdb_actor_id}")
 def get_actor(tmdb_actor_id: int):

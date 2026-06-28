@@ -48,7 +48,6 @@ def render_actors_page():
     top_actors = get_top_actors()
     highest_rated_actors = get_highest_rated_actors()
     most_popular_actors = get_most_popular_actors()
-    all_actors = get_all_actors(limit=50)
 
     if not top_actors:
         st.warning("No actor analytics data available.")
@@ -176,18 +175,42 @@ def render_actors_page():
 
     st.subheader("All Actors")
 
-    for actor in all_actors:
+    actor_search = st.text_input(
+        "Search actor",
+        placeholder="Type actor name...",
+        key="actor_search_query",
+    )
 
+    if not actor_search:
+        st.info("Type an actor name to search.")
+        return
+
+    all_actors = get_all_actors(
+        limit=50,
+        search=actor_search,
+    )
+
+    if not all_actors:
+        st.warning("No actors found.")
+        return
+
+    if len(actor_search) < 2:
+        st.info("Type at least 2 letters to search.")
+        return
+
+    for actor in all_actors:
         col1, col2 = st.columns([1, 4])
 
         with col1:
             render_actor_image(actor.get("profile_path"), width=80)
 
         with col2:
-
             st.write(f"### {actor['name']}")
 
-            if st.button("Actor Details", key=f"actor_{actor['tmdb_actor_id']}"):
+            if st.button(
+                    "Actor Details",
+                    key=f"actor_{actor['tmdb_actor_id']}"
+            ):
                 st.session_state.selected_actor_id = actor["tmdb_actor_id"]
                 st.session_state.previous_page = "actors"
                 st.session_state.active_section = "Actors"

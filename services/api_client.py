@@ -90,11 +90,16 @@ def get_most_popular_actors():
     except requests.RequestException:
         return []
 
-def get_all_actors(limit: int = 100):
+def get_all_actors(limit: int = 50, search: str | None = None):
     try:
+        params = {"limit": limit}
+
+        if search:
+            params["search"] = search
+
         response = requests.get(
             f"{API_URL}/actors",
-            params={"limit": limit},
+            params=params,
             timeout=10,
         )
         response.raise_for_status()

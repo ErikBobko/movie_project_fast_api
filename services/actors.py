@@ -46,13 +46,25 @@ def get_actor_movies_by_tmdb_id(tmdb_actor_id: int):
 
     return movies_response.data
 
-def get_all_actors(limit: int = 100):
-    response = (
+
+def get_all_actors(
+    limit: int = 50,
+    offset: int = 0,
+    search: str | None = None
+):
+    query = (
         supabase
         .table("actors")
         .select("*")
         .order("name")
-        .limit(limit)
+    )
+
+    if search:
+        query = query.ilike("name", f"{search}%")
+
+    response = (
+        query
+        .range(offset, offset + limit - 1)
         .execute()
     )
 
