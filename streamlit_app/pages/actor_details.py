@@ -78,6 +78,16 @@ def render_actor_details(tmdb_actor_id):
                 f"📅 {movie.get('release_date', 'Unknown date')}"
             )
 
+            if st.button(
+                    "Movie Details",
+                    key=f"actor_detail_movie_{movie['id']}"
+            ):
+                st.session_state.selected_movie_id = movie["id"]
+                st.session_state.selected_actor_id = None
+                st.session_state.previous_page = "actor_detail"
+                st.session_state.app_mode = "detail"
+                st.rerun()
+
 
 def render_actor_profile_image(profile_path):
     if profile_path:
