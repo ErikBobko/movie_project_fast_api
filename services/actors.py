@@ -45,3 +45,15 @@ def get_actor_movies_by_tmdb_id(tmdb_actor_id: int):
     )
 
     return movies_response.data
+
+def get_all_actors(limit: int = 100):
+    response = (
+        supabase
+        .table("actors")
+        .select("*")
+        .order("name")
+        .limit(limit)
+        .execute()
+    )
+
+    return response.data

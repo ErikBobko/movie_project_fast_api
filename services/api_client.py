@@ -89,3 +89,15 @@ def get_most_popular_actors():
 
     except requests.RequestException:
         return []
+
+def get_all_actors(limit: int = 100):
+    try:
+        response = requests.get(
+            f"{API_URL}/actors",
+            params={"limit": limit},
+            timeout=10,
+        )
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException:
+        return []

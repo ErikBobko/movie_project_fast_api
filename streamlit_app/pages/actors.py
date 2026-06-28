@@ -170,3 +170,4 @@ def render_actors_page():
     with t3:
         st.subheader("Most Popular Actors")
         st.dataframe(style_actor_table(popular_df), use_container_width=True)
+
