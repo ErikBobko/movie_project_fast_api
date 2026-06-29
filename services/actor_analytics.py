@@ -1,5 +1,5 @@
 from db import supabase
-
+import math
 
 def get_top_actors_by_movie_count():
     response = (
@@ -40,3 +40,27 @@ def get_most_popular_actors():
     )
 
     return response.data
+
+def get_best_actors():
+    response = (
+        supabase
+        .table("actor_rating_stats")
+        .select("*")
+        .gte("movie_count", 3)
+        .execute()
+    )
+
+    actors = response.data
+
+    for actor in actors:
+        actor["actor_score"] = round(
+            actor["avg_rating"] * math.log(actor["movie_count"] + 1),
+            2
+        )
+
+    actors.sort(
+        key=lambda actor: actor["actor_score"],
+        reverse=True
+    )
+
+    return actors[:5]

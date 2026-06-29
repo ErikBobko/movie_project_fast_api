@@ -106,3 +106,15 @@ def get_all_actors(limit: int = 50, search: str | None = None):
         return response.json()
     except requests.RequestException:
         return []
+
+def get_best_actors():
+    try:
+        response = requests.get(
+            f"{API_URL}/analytics/actors/best",
+            timeout=10
+        )
+        response.raise_for_status()
+        return response.json()
+
+    except requests.RequestException:
+        return []

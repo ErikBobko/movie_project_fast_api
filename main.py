@@ -22,7 +22,7 @@ from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
 from pipelines.cast_sync import sync_movie_casts , sync_missing_movie_casts
 from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id,get_all_actors
 from services.movies import get_movie_by_id
-from services.actor_analytics import get_top_actors_by_movie_count,get_highest_rated_actors,get_most_popular_actors
+from services.actor_analytics import get_top_actors_by_movie_count,get_highest_rated_actors,get_most_popular_actors,get_best_actors
 
 app = FastAPI()
 
@@ -104,3 +104,6 @@ def highest_rated_actors():
 def most_popular_actors():
     return get_most_popular_actors()
 
+@app.get("/analytics/actors/best")
+def best_actors():
+    return get_best_actors()
