@@ -19,7 +19,7 @@ def get_highest_rated_actors():
         supabase
         .table("actor_rating_stats")
         .select("*")
-        .gte("movie_count", 5)
+        .gte("movie_count", 4)
         .order("avg_rating", desc=True)
         .limit(10)
         .execute()
@@ -33,7 +33,7 @@ def get_most_popular_actors():
         supabase
         .table("actor_popularity_stats")
         .select("*")
-        .gte("movie_count", 2)
+        .gte("movie_count", 4)
         .order("avg_popularity", desc=True)
         .limit(10)
         .execute()
@@ -46,7 +46,7 @@ def get_best_actors():
         supabase
         .table("actor_rating_stats")
         .select("*")
-        .gte("movie_count", 3)
+        .gte("movie_count", 4)
         .execute()
     )
 

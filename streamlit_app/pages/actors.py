@@ -7,6 +7,7 @@ from services.api_client import (
     get_highest_rated_actors,
     get_most_popular_actors,
     get_all_actors,
+get_best_actors
 )
 
 
@@ -80,6 +81,7 @@ def render_actors_page():
     top_actors = get_top_actors()
     highest_rated_actors = get_highest_rated_actors()
     most_popular_actors = get_most_popular_actors()
+    best_actors = get_best_actors()
 
     if not top_actors:
         st.warning("No actor analytics data available.")
@@ -88,6 +90,7 @@ def render_actors_page():
     top_df = pd.DataFrame(top_actors)
     rated_df = pd.DataFrame(highest_rated_actors)
     popular_df = pd.DataFrame(most_popular_actors)
+    best_df = pd.DataFrame(best_actors)
 
     if "avg_rating" in rated_df.columns:
         rated_df["avg_rating"] = rated_df["avg_rating"].round(2)
@@ -95,7 +98,10 @@ def render_actors_page():
     if "avg_popularity" in popular_df.columns:
         popular_df["avg_popularity"] = popular_df["avg_popularity"].round(2)
 
-    col1, col2, col3, col4 = st.columns(4)
+    if "actor_score" in best_df.columns:
+        best_df["actor_score"] = best_df["actor_score"].round(2)
+
+    col1, col2, col3, col4, col5 = st.columns(5)
 
     with col1:
         st.metric("Top Actors", len(top_df))
@@ -117,6 +123,15 @@ def render_actors_page():
             "Highest Popularity",
             f"{popular_df.iloc[0]['avg_popularity']:.2f}",
         )
+
+    with col5:
+        if not best_df.empty:
+            st.metric(
+                "🏆 Best Actor",
+                best_df.iloc[0]["name"]
+            )
+        else:
+            st.metric("🏆 Best Actor", "N/A")
 
     st.divider()
 
@@ -147,6 +162,50 @@ def render_actors_page():
 
     with c2:
         with st.container(border=True):
+            st.subheader("🏆 Top 5 Best Actors")
+
+            if not best_df.empty:
+                fig_best = px.pie(
+                    best_df,
+                    names="name",
+                    values="actor_score",
+                    title="Best Actors Score Share",
+                    hole=0.35,
+                    color_discrete_sequence=[
+                        "#10B981",
+                        "#FACC15",
+                        "#EF4444",
+                        "#3B82F6",
+                        "#A855F7",
+                    ],
+                )
+
+                fig_best.update_traces(
+                    textinfo="label+percent",
+                    textposition="inside",
+                    marker=dict(
+                        line=dict(
+                            color="#000000",
+                            width=4
+                        )
+                    )
+                )
+
+                fig_best.update_layout(
+                    height=389,
+                    legend_title_text="Actor",
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+
+                )
+
+                st.plotly_chart(fig_best, use_container_width=True)
+            else:
+                st.info("No best actors data available.")
+
+    with c3:
+
+        with st.container(border=True):
             fig_rated = px.bar(
                 rated_df,
                 x="avg_rating",
@@ -168,28 +227,6 @@ def render_actors_page():
 
             st.plotly_chart(fig_rated, use_container_width=True)
 
-    with c3:
-        with st.container(border=True):
-            fig_popular = px.bar(
-                popular_df,
-                x="avg_popularity",
-                y="name",
-                orientation="h",
-                title="Most Popular Actors",
-                labels={
-                    "avg_popularity": "Avg Popularity",
-                    "name": "Actor",
-                },
-                text="avg_popularity",
-                color="avg_popularity",
-                color_continuous_scale="Tealgrn",
-            )
-
-            fig_popular.update_layout(
-                yaxis={"categoryorder": "total ascending"},
-            )
-
-            st.plotly_chart(fig_popular, use_container_width=True)
 
     with st.expander("Show raw analytics tables"):
         t1, t2, t3 = st.columns(3)
