@@ -89,6 +89,10 @@ def render_movie_details(movie_id):
 
                 st.caption(f"as {actor.get('character', 'Unknown role')}")
 
+            st.markdown(
+                "<div style='margin-bottom:22px;'></div>",
+                unsafe_allow_html=True
+            )
 
 def render_small_actor_image(profile_path, width=70):
     if profile_path:
@@ -99,7 +103,7 @@ def render_small_actor_image(profile_path, width=70):
             f"""
             <div style="
                 width:{width}px;
-                height:{int(width * 1.35)}px;
+                height:{int(width * 1.45)}px;
                 border-radius:8px;
                 background:#1F2937;
                 display:flex;
