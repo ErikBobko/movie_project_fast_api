@@ -135,10 +135,6 @@ def sync_actor_details(limit=1000):
                 "details_synced": True,
                 "birthday": details.get("birthday"),
                 "place_of_birth": details.get("place_of_birth"),
-                "known_for_department": details.get(
-                    "known_for_department"
-
-                ),
                 "biography": details.get("biography"),
                 "popularity": details.get("popularity"),
             }
