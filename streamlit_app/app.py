@@ -12,8 +12,11 @@ from components.sidebar import render_sidebar
 from streamlit_app.pages.movie_details import render_movie_details
 from streamlit_app.pages.actor_details import render_actor_details
 from pages.actors import render_actors_page
+from pathlib import Path
 
 
+BASE_DIR = Path(__file__).resolve().parent
+NO_POSTER_PATH = BASE_DIR / "assets" / "no_poster.png"
 # =========================
 # PAGE CONFIG
 # =========================
@@ -99,9 +102,16 @@ filtered_movies = filter_movies(
 # search filter
 if search_query:
     filtered_movies = [
-        m for m in filtered_movies
+        m for m in movies
         if search_query.lower() in m.get("title", "").lower()
     ]
+else:
+    filtered_movies = filter_movies(
+        movies,
+        filters["year_range"],
+        filters["min_rating"],
+        filters["min_votes"]
+    )
 
 if not filtered_movies:
     st.warning("No movies match the selected filters.")
@@ -237,9 +247,18 @@ with main:
         col1, col2 = st.columns([1, 4])
 
         with col1:
-            if movie.get("poster_path"):
-                poster_url = f"https://image.tmdb.org/t/p/w200{movie['poster_path']}"
-                st.image(poster_url, width=80)
+            poster_path = movie.get("poster_path")
+
+            if isinstance(poster_path, str) and poster_path.startswith("/"):
+                st.image(
+                    f"https://image.tmdb.org/t/p/w200{poster_path}",
+                    width=80
+                )
+            else:
+                st.image(
+                    str(NO_POSTER_PATH),
+                    width=80
+                )
 
         with col2:
             st.subheader(movie["title"])
