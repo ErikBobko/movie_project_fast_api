@@ -1,5 +1,6 @@
 import streamlit as st
 from services.api_client import get_actor, get_actor_movies
+from datetime import date, datetime
 
 
 def render_actor_details(tmdb_actor_id):
@@ -37,7 +38,12 @@ def render_actor_details(tmdb_actor_id):
         st.write(f"Movies in database: **{len(movies)}**")
 
         if actor.get("birthday"):
+            age = calculate_age(actor.get("birthday"))
+
             st.write(f"🎂 Birthday: **{actor['birthday']}**")
+
+            if age is not None:
+                st.write(f"🎈 Age: **{age} years**")
 
         if actor.get("place_of_birth"):
             st.write(f"🌍 Place of birth: **{actor['place_of_birth']}**")
@@ -132,3 +138,17 @@ def render_actor_profile_image(profile_path):
             """,
             unsafe_allow_html=True
         )
+
+def calculate_age(birthday: str | None) -> int | None:
+    if not birthday:
+        return None
+
+    birth_date = datetime.strptime(birthday, "%Y-%m-%d").date()
+    today = date.today()
+
+    age = today.year - birth_date.year
+
+    if (today.month, today.day) < (birth_date.month, birth_date.day):
+        age -= 1
+
+    return age
