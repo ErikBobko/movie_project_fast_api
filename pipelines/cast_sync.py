@@ -1,4 +1,4 @@
-from clients.tmdb_client import get_movie_cast
+from clients.tmdb_client import get_movie_cast,get_actor_details
 from db import supabase
 
 
@@ -109,4 +109,56 @@ def sync_missing_movie_casts(limit: int = 100):
         "movies_synced": movies_synced,
         "actors_processed": actors_synced,
         "relations_synced": relations_synced,
+    }
+
+def sync_actor_details(limit=1000):
+    actors_response = (
+        supabase
+        .table("actors")
+        .select("*")
+        .limit(limit)
+        .eq("details_synced", False)
+        .execute()
+    )
+
+    actors = actors_response.data
+
+    updated = 0
+
+    for actor in actors:
+        try:
+            details = get_actor_details(
+                actor["tmdb_actor_id"]
+            )
+
+            update_payload = {
+                "details_synced": True,
+                "birthday": details.get("birthday"),
+                "place_of_birth": details.get("place_of_birth"),
+                "known_for_department": details.get(
+                    "known_for_department"
+
+                ),
+                "biography": details.get("biography"),
+                "popularity": details.get("popularity"),
+            }
+
+            (
+                supabase
+                .table("actors")
+                .update(update_payload)
+                .eq("id", actor["id"])
+                .execute()
+            )
+
+            updated += 1
+
+        except Exception as e:
+            print(
+                f"Failed actor {actor['name']}: {e}"
+            )
+
+    return {
+        "updated": updated,
+        "total": len(actors)
     }

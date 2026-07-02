@@ -126,3 +126,19 @@ def get_movie_crew_summary(tmdb_id: int):
         "writers": list(dict.fromkeys(writers)),
         "composers": list(dict.fromkeys(composers)),
     }
+
+
+def get_actor_details(tmdb_actor_id: int):
+    url = f"{BASE_URL}/person/{tmdb_actor_id}"
+
+    response = requests.get(
+        url,
+        params={
+            "api_key": TMDB_API_KEY,
+            "language": "en-US",
+        },
+        timeout=10,
+    )
+
+    response.raise_for_status()
+    return response.json()
