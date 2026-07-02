@@ -1,6 +1,10 @@
 import streamlit as st
 from services.api_client import get_movie_cast,get_movie_crew
 from services.api_client import get_movie_by_id
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+NO_POSTER_PATH = BASE_DIR / "assets" / "no_poster.png"
 
 
 
@@ -11,6 +15,7 @@ def render_movie_details(movie_id):
         st.rerun()
 
     movie = get_movie_by_id(movie_id)
+    poster_path = movie.get("poster_path")
 
     if not movie:
         st.error(f"Movie not found. movie_id={movie_id}")
@@ -24,9 +29,18 @@ def render_movie_details(movie_id):
     col1, col2 = st.columns([1, 3])
 
     with col1:
-        if movie.get("poster_path"):
-            poster_url = f"https://image.tmdb.org/t/p/w300{movie['poster_path']}"
-            st.image(poster_url)
+        poster_path = movie.get("poster_path")
+
+        if poster_path and isinstance(poster_path, str) and poster_path.startswith("/"):
+            st.image(
+                f"https://image.tmdb.org/t/p/w300{poster_path}",
+                width=300
+            )
+        else:
+            st.image(
+                str(NO_POSTER_PATH),
+                width=300
+            )
 
     with col2:
         st.subheader("Overview")
