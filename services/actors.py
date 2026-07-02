@@ -60,7 +60,7 @@ def get_all_actors(
     )
 
     if search:
-        query = query.ilike("name", f"{search}%")
+        query = query.ilike("name", f"%{search}%")
 
     response = (
         query
