@@ -12,17 +12,17 @@ Dôležité:
 - nevykonáva analytické výpočty
 - endpointy delegujú prácu na services alebo databázovú vrstvu
 """
-
-from pipelines.ingestion import  sync_popular_movies
 from fastapi import FastAPI
-from services.analytics import  get_top_rated, get_language_stats
 from db import supabase
 from models.movie import Movie
 from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
+from pipelines.ingestion import  sync_popular_movies
+from pipelines.full_sync import sync_full_database
 from pipelines.cast_sync import sync_movie_casts , sync_missing_movie_casts,sync_actor_details
 from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id,get_all_actors
 from services.movies import get_movie_by_id
 from services.actor_analytics import get_top_actors_by_movie_count,get_highest_rated_actors,get_most_popular_actors,get_best_actors
+from services.analytics import  get_top_rated, get_language_stats
 
 app = FastAPI()
 
@@ -37,6 +37,10 @@ def health():
 @app.get("/analytics/top-rated")
 def top_rated():
     return get_top_rated()
+
+@app.get("/analytics/actors/popular")
+def most_popular_actors():
+    return get_most_popular_actors()
 
 @app.get("/analytics/languages")
 def languages():
@@ -79,10 +83,6 @@ def movie_by_id(movie_id: int):
 def sync_casts(limit: int = 100, offset: int = 0):
     return sync_movie_casts(limit=limit, offset=offset)
 
-@app.post("/sync/popular")
-def sync_movies():
-    return sync_popular_movies()
-
 @app.post("/movies")
 def create_movie(movie: Movie):
     response = supabase.table("movies").insert(movie.model_dump()).execute()
@@ -100,9 +100,9 @@ def top_actors():
 def highest_rated_actors():
     return get_highest_rated_actors()
 
-@app.get("/analytics/actors/popular")
-def most_popular_actors():
-    return get_most_popular_actors()
+@app.post("/sync/popular")
+def sync_movies(pages: int = 1):
+    return sync_popular_movies(pages=pages)
 
 @app.get("/analytics/actors/best")
 def best_actors():
@@ -111,3 +111,15 @@ def best_actors():
 @app.post("/sync/actors/details")
 def sync_actors_details(limit: int = 100):
     return sync_actor_details(limit)
+
+@app.post("/sync/full")
+def sync_full(
+    pages: int = 5,
+    cast_limit: int = 1000,
+    actor_details_limit: int = 1000,
+):
+    return sync_full_database(
+        pages=pages,
+        cast_limit=cast_limit,
+        actor_details_limit=actor_details_limit,
+    )

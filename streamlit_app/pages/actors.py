@@ -107,31 +107,40 @@ def render_actors_page():
         st.metric("Top Actors", len(top_df))
 
     with col2:
-        st.metric(
-            "Most Featured Actor",
-            f"{top_df.iloc[0]['name']} ({top_df.iloc[0]['movie_count']})",
-        )
+        if not top_df.empty:
+            st.metric(
+                "Most Featured Actor",
+                f"{top_df.iloc[0]['name']} ({top_df.iloc[0]['movie_count']})",
+            )
+        else:
+            st.metric("Most Featured Actor", "N/A")
 
     with col3:
-        st.metric(
-            "Best Avg Rating",
-            f"{rated_df.iloc[0]['avg_rating']:.2f}",
-        )
+        if not rated_df.empty:
+            st.metric(
+                "Best Avg Rating",
+                f"{rated_df.iloc[0]['avg_rating']:.2f}",
+            )
+        else:
+            st.metric("Best Avg Rating", "N/A")
 
     with col4:
-        st.metric(
-            "Highest Popularity",
-            f"{popular_df.iloc[0]['avg_popularity']:.2f}",
-        )
+        if not popular_df.empty:
+            st.metric(
+                "Highest Popularity",
+                f"{popular_df.iloc[0]['avg_popularity']:.2f}",
+            )
+        else:
+            st.metric("Highest Popularity", "N/A")
 
     with col5:
         if not best_df.empty:
             st.metric(
-                "🏆 Best Actor",
-                best_df.iloc[0]["name"]
+                "Best Actor Score",
+                f"{best_df.iloc[0]['actor_score']:.2f}",
             )
         else:
-            st.metric("🏆 Best Actor", "N/A")
+            st.metric("Best Actor Score", "N/A")
 
     st.divider()
 
@@ -249,12 +258,21 @@ def render_actors_page():
 
         with t3:
             st.subheader("Most Popular Actors")
-            st.dataframe(
-                style_actor_table(
-                    popular_df[["name", "movie_count", "avg_popularity"]]
-                ),
-                use_container_width=True,
-            )
+
+            if not popular_df.empty and all(
+                    col in popular_df.columns
+                    for col in ["name", "movie_count", "avg_popularity"]
+            ):
+                st.dataframe(
+                    style_actor_table(
+                        popular_df[
+                            ["name", "movie_count", "avg_popularity"]
+                        ]
+                    ),
+                    use_container_width=True,
+                )
+            else:
+                st.info("No popularity analytics data available.")
 
     st.divider()
 
