@@ -15,11 +15,13 @@ def render_movie_details(movie_id):
         st.rerun()
 
     movie = get_movie_by_id(movie_id)
-    poster_path = movie.get("poster_path")
+
 
     if not movie:
         st.error(f"Movie not found. movie_id={movie_id}")
         return
+
+    poster_path = movie.get("poster_path")
 
     cast = get_movie_cast(movie["tmdb_id"])
     crew = get_movie_crew(movie["tmdb_id"])
