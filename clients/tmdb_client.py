@@ -18,27 +18,35 @@ from config import TMDB_API_KEY
 
 BASE_URL = "https://api.themoviedb.org/3"
 
-def get_popular_movies(page: int = 1):
+
+def get_movies_from_endpoint(endpoint: str, page: int = 1):
     response = requests.get(
-        f"{BASE_URL}/movie/popular",
+        f"{BASE_URL}/{endpoint}",
         params={
             "api_key": TMDB_API_KEY,
-            "page": page
-        }
+            "language": "en-US",
+            "page": page,
+        },
+        timeout=10,
     )
-    return response.json()["results"]
-
-def get_now_playing_movies():
-    url = f"{BASE_URL}/movie/now_playing"
-    params = {
-        "api_key": TMDB_API_KEY,
-        "language": "en-US",
-        "page": 1
-    }
-    response = requests.get(url, params=params)
     response.raise_for_status()
-
     return response.json()["results"]
+
+
+def get_popular_movies(page: int = 1):
+    return get_movies_from_endpoint("movie/popular", page)
+
+
+def get_top_rated_movies(page: int = 1):
+    return get_movies_from_endpoint("movie/top_rated", page)
+
+
+def get_now_playing_movies(page: int = 1):
+    return get_movies_from_endpoint("movie/now_playing", page)
+
+
+def get_upcoming_movies(page: int = 1):
+    return get_movies_from_endpoint("movie/upcoming", page)
 
 def get_genres():
     url = f"{BASE_URL}/genre/movie/list"
