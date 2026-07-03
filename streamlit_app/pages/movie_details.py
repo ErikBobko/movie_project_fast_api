@@ -103,7 +103,10 @@ def render_movie_details(movie_id):
                 else:
                     st.markdown(f"**{actor_name}**")
 
-                st.caption(f"as {actor.get('character', 'Unknown role')}")
+                character = actor.get("character")
+
+                if character:
+                    st.caption(f"as {character}")
 
             st.markdown(
                 "<div style='margin-bottom:22px;'></div>",
