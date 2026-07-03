@@ -7,6 +7,7 @@ def render_actor_details(tmdb_actor_id):
     if st.button("Back", key="actor_detail_back_button"):
 
         st.session_state.selected_actor_id = None
+        st.session_state.previous_actor_id = None
 
         if st.session_state.get("previous_page") == "actors":
             st.session_state.active_section = "Actors"
@@ -17,7 +18,14 @@ def render_actor_details(tmdb_actor_id):
                 "previous_section",
                 "Overview"
             )
-            st.session_state.app_mode = "detail"
+            st.session_state.selected_movie_id = None
+            st.session_state.app_mode = "list"
+
+        else:
+            st.session_state.app_mode = "list"
+
+        st.session_state.previous_page = None
+        st.rerun()
 
         st.rerun()
 
@@ -107,6 +115,7 @@ def render_actor_details(tmdb_actor_id):
                         "Movie Details",
                         key=f"actor_detail_movie_{movie['id']}",
                 ):
+                    st.session_state.previous_actor_id = tmdb_actor_id
                     st.session_state.selected_movie_id = movie["id"]
                     st.session_state.selected_actor_id = None
                     st.session_state.previous_page = "actor_detail"

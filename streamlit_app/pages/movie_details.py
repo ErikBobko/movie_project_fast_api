@@ -9,10 +9,18 @@ NO_POSTER_PATH = BASE_DIR / "assets" / "no_poster.png"
 
 
 def render_movie_details(movie_id):
-    if st.button("⬅ Back to movies", key="back_to_movies_from_detail"):
-        st.session_state.selected_movie_id = None
-        st.session_state.app_mode = "list"
-        st.rerun()
+    if st.session_state.get("previous_actor_id"):
+        if st.button("⬅ Back to actor", key="back_to_actor_from_movie_detail"):
+            st.session_state.selected_movie_id = None
+            st.session_state.selected_actor_id = st.session_state.previous_actor_id
+            st.session_state.previous_actor_id = None
+            st.session_state.app_mode = "actor_detail"
+            st.rerun()
+    else:
+        if st.button("⬅ Back to movies", key="back_to_movies_from_detail"):
+            st.session_state.selected_movie_id = None
+            st.session_state.app_mode = "list"
+            st.rerun()
 
     movie = get_movie_by_id(movie_id)
 
