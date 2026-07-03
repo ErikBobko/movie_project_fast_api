@@ -1,4 +1,9 @@
 import streamlit as st
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT_DIR))
 
 from services.analytics import get_movies
 from services.filters import filter_movies
@@ -12,7 +17,6 @@ from components.sidebar import render_sidebar
 from streamlit_app.pages.movie_details import render_movie_details
 from streamlit_app.pages.actor_details import render_actor_details
 from pages.actors import render_actors_page
-from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
