@@ -17,9 +17,11 @@ Dôležité:
 
 from clients.tmdb_client import (
     get_popular_movies,
+    get_top_rated_movies,
+    get_now_playing_movies,
+    get_upcoming_movies,
     get_genres,
     get_movie_details,
-    get_movie_cast,
 )
 
 from pipelines.movie_transformer import (build_genre_map, transform_movie)
@@ -32,20 +34,31 @@ def sync_popular_movies(pages: int = 1):
 
     all_movies = []
 
-    for page in range(1, pages + 1):
-        movies = get_popular_movies(page)
+    movie_sources = [
+        get_popular_movies,
+        get_top_rated_movies,
+        get_now_playing_movies,
+        get_upcoming_movies,
+    ]
 
-        for movie in movies:
-            details = get_movie_details(movie["id"])
+    for source in movie_sources:
 
-            transformed_movies = transform_movie(
-                movie,
-                genre_map,
-                details
-            )
+        print(f"Syncing source: {source.__name__}")
 
-            all_movies.append(transformed_movies)
+        for page in range(1, pages + 1):
 
+            movies = source(page)
+
+            for movie in movies:
+                details = get_movie_details(movie["id"])
+
+                transformed_movie = transform_movie(
+                    movie,
+                    genre_map,
+                    details
+                )
+
+                all_movies.append(transformed_movie)
 
     unique_movies = {}
 
@@ -57,7 +70,6 @@ def sync_popular_movies(pages: int = 1):
     response = (
         supabase
         .table("movies")
-
         .upsert(
             all_movies,
             on_conflict="tmdb_id"
@@ -66,4 +78,3 @@ def sync_popular_movies(pages: int = 1):
     )
 
     return response.data
-
