@@ -33,7 +33,10 @@ st.set_page_config(
 # =========================
 # LOAD DATA
 # =========================
-movies = get_movies()
+@st.cache_data(ttl=3600, show_spinner=False)
+def load_movies():
+    return get_movies()
+movies = load_movies()
 if not movies:
     st.error("No movies loaded")
     st.stop()
