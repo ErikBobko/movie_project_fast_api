@@ -23,6 +23,7 @@ from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id,ge
 from services.movies import get_movie_by_id
 from services.actor_analytics import get_top_actors_by_movie_count,get_highest_rated_actors,get_most_popular_actors,get_best_actors
 from services.analytics import  get_top_rated, get_language_stats
+from services.recommendations import get_recommendations
 
 app = FastAPI()
 
@@ -122,4 +123,18 @@ def sync_full(
         pages=pages,
         cast_limit=cast_limit,
         actor_details_limit=actor_details_limit,
+    )
+
+@app.get("/recommendations")
+def recommendations(
+    genre: str | None = None,
+    min_rating: float = 0,
+    year_from: int | None = None,
+    limit: int = 10,
+):
+    return get_recommendations(
+        genre=genre,
+        min_rating=min_rating,
+        year_from=year_from,
+        limit=limit,
     )
