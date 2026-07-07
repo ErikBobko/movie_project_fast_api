@@ -36,8 +36,34 @@ JSON format:
 
     return json.loads(text)
 
+GENRE_MAP = {
+    "sci-fi": "Science Fiction",
+    "science fiction": "Science Fiction",
+    "scifi": "Science Fiction",
+
+    "romcom": "Romance",
+    "romantic": "Romance",
+
+    "kids": "Family",
+    "children": "Family",
+
+    "action": "Action",
+    "drama": "Drama",
+    "comedy": "Comedy",
+    "thriller": "Thriller",
+    "horror": "Horror",
+    "fantasy": "Fantasy",
+    "animation": "Animation",
+    "adventure": "Adventure",
+    "crime": "Crime",
+    "mystery": "Mystery",
+}
+
 def get_ai_recommendations(prompt: str):
     filters = parse_user_prompt(prompt)
+    filters = normalize_filters(filters)
+
+    print("AI filters:", filters)
 
     recommendations = get_recommendations(
         genre=filters.get("genre"),
@@ -52,3 +78,14 @@ def get_ai_recommendations(prompt: str):
         "filters": filters,
         "recommendations": recommendations,
     }
+
+def normalize_filters(filters: dict):
+    genre = filters.get("genre")
+
+    if genre:
+        filters["genre"] = GENRE_MAP.get(
+            genre.lower(),
+            genre
+        )
+
+    return filters
