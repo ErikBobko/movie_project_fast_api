@@ -1,6 +1,6 @@
 import streamlit as st
 from services.api_client import get_movie_cast,get_movie_crew
-from services.api_client import get_movie_by_id
+from services.api_client import get_movie_by_id,get_similar_movies
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[1]
@@ -65,6 +65,24 @@ def render_movie_details(movie_id):
 
         ---
         """)
+    similar_movies = get_similar_movies(movie_id)
+
+    st.markdown("---")
+    st.subheader("🎬 Similar Movies")
+
+    if not similar_movies:
+        st.info("No similar movies found.")
+    else:
+        for similar_movie in similar_movies[:5]:
+            st.markdown(
+                f"""
+                **{similar_movie.get("title", "Unknown title")}**  
+                ⭐ Rating: {similar_movie.get("rating", 0):.2f}  
+                📅 Year: {similar_movie.get("year", "N/A")}  
+                🎭 Shared actors: {similar_movie.get("shared_actor_count", 0)}  
+                🧠 Similarity score: {similar_movie.get("similarity_score", 0)}
+                """
+            )
 
     st.markdown("---")
     st.subheader("Crew")

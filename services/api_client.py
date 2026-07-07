@@ -4,6 +4,10 @@ API_URL = "http://127.0.0.1:8000"
 import time
 import requests
 
+def get_similar_movies(movie_id: int):
+    response = requests.get(f"{API_URL}/movies/{movie_id}/similar")
+    response.raise_for_status()
+    return response.json()
 
 def safe_get(url, timeout=5, retries=2, **kwargs):
     for attempt in range(retries):
