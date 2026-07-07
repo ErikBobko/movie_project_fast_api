@@ -27,7 +27,6 @@ def render_actor_details(tmdb_actor_id):
         st.session_state.previous_page = None
         st.rerun()
 
-        st.rerun()
 
     actor = get_actor(tmdb_actor_id)
     movies = get_actor_movies(tmdb_actor_id)
