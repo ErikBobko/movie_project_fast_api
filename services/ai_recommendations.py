@@ -79,7 +79,7 @@ def get_ai_recommendations(prompt: str):
         min_rating=filters.get("min_rating") or 0,
         year_from=filters.get("year_from"),
         actor=filters.get("actor"),
-        limit=10,
+        limit=5,
     )
 
     explanations = explain_recommendations(prompt, recommendations)
