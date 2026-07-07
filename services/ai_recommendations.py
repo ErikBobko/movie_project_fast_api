@@ -73,6 +73,16 @@ def get_ai_recommendations(prompt: str):
         limit=10,
     )
 
+    explanations = explain_recommendations(prompt, recommendations)
+
+    explanation_map = {
+        item["id"]: item["reason"]
+        for item in explanations
+    }
+
+    for movie in recommendations:
+        movie["ai_reason"] = explanation_map.get(movie["id"])
+
     return {
         "prompt": prompt,
         "filters": filters,
@@ -89,3 +99,50 @@ def normalize_filters(filters: dict):
         )
 
     return filters
+
+def explain_recommendations(prompt: str, recommendations: list):
+    if not recommendations:
+        return []
+
+    movies_for_ai = []
+
+    for movie in recommendations[:5]:
+        movies_for_ai.append({
+            "id": movie.get("id"),
+            "title": movie.get("title"),
+            "year": movie.get("year"),
+            "rating": movie.get("rating"),
+            "category": movie.get("category"),
+            "overview": movie.get("overview"),
+        })
+
+    response = client.responses.create(
+        model="gpt-5-mini",
+        input=f"""
+You are a movie recommendation assistant.
+
+User request:
+{prompt}
+
+Movies from my database:
+{json.dumps(movies_for_ai, ensure_ascii=False)}
+
+Task:
+Write a short recommendation reason for each movie.
+
+Rules:
+- Use only the movies provided.
+- Do not invent new movies.
+- Return only JSON.
+- Use this format:
+
+[
+  {{
+    "id": 123,
+    "reason": "Short reason why this movie matches the request."
+  }}
+]
+"""
+    )
+
+    return json.loads(response.output_text)
