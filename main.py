@@ -25,6 +25,7 @@ from services.actor_analytics import get_top_actors_by_movie_count,get_highest_r
 from services.analytics import  get_top_rated, get_language_stats
 from services.recommendations import get_recommendations
 from services.similar_movies import get_similar_movies
+from services.content_recommendations import get_similar_movies_by_content
 
 app = FastAPI()
 
@@ -145,3 +146,7 @@ def recommendations(
 @app.get("/movies/{movie_id}/similar")
 def similar_movies(movie_id: int):
     return get_similar_movies(movie_id)
+
+@app.get("/movies/{movie_id}/similar/content")
+def similar_movies_by_content(movie_id: int, limit: int = 10):
+    return get_similar_movies_by_content(movie_id, limit)
