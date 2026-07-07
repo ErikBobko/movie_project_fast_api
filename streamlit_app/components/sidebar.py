@@ -5,7 +5,7 @@ def render_sidebar(movies):
 
     st.markdown("## 🎬 Movie Dashboard")
 
-    options = ["Overview", "Search", "Filters", "Discover", "Actors", "About"]
+    options = ["Overview", "Search", "Filters", "AI Recommendations", "Actors", "About"]
 
     if "active_section" not in st.session_state:
         st.session_state.active_section = "Overview"

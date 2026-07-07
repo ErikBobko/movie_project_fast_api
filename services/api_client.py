@@ -131,3 +131,11 @@ def get_best_actors():
 
     except requests.RequestException:
         return []
+
+def get_ai_recommendations(prompt: str):
+    response = requests.post(
+        f"{API_URL}/ai/recommendations",
+        json={"prompt": prompt}
+    )
+    response.raise_for_status()
+    return response.json()

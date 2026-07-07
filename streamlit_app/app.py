@@ -17,6 +17,7 @@ from components.sidebar import render_sidebar
 from streamlit_app.pages.movie_details import render_movie_details
 from streamlit_app.pages.actor_details import render_actor_details
 from pages.actors import render_actors_page
+from pages.recommendations import render_recommendations
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -75,11 +76,6 @@ if st.session_state.app_mode == "actor_detail":
     render_actor_details(st.session_state.selected_actor_id)
     st.stop()
 
-
-# =========================
-# SIDEBAR
-# =========================
-
 # =========================
 # SIDEBAR
 # =========================
@@ -94,6 +90,10 @@ else:
 
 if section == "Actors":
     render_actors_page()
+    st.stop()
+
+if section == "AI Recommendations":
+    render_recommendations()
     st.stop()
 
 # =========================
