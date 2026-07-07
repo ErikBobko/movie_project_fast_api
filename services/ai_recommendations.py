@@ -27,8 +27,17 @@ JSON format:
   "genre": null,
   "min_rating": null,
   "year_from": null,
-  "actor": null
+  "actor": null,
+  "mood": null,
+  "theme": null,
+  "reference_movie": null
 }}
+
+Rules:
+- genre should match common movie genres like Action, Drama, Comedy, Thriller, Horror, Science Fiction, Fantasy, Animation, Adventure, Crime, Mystery, Romance, Family.
+- mood can be dark, emotional, funny, scary, tense, romantic, inspiring, mysterious, relaxing.
+- theme can be survival, space, revenge, friendship, war, crime, family, love, artificial intelligence, time travel.
+- reference_movie is the movie title if user asks for something similar to a specific movie.
 """
     )
 
@@ -97,6 +106,16 @@ def normalize_filters(filters: dict):
             genre.lower(),
             genre
         )
+
+    mood = filters.get("mood")
+
+    if mood:
+        filters["mood"] = mood.lower()
+
+    theme = filters.get("theme")
+
+    if theme:
+        filters["theme"] = theme.lower()
 
     return filters
 
