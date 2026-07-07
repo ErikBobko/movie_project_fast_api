@@ -130,11 +130,13 @@ def recommendations(
     genre: str | None = None,
     min_rating: float = 0,
     year_from: int | None = None,
+    actor: str | None = None,
     limit: int = 10,
 ):
     return get_recommendations(
         genre=genre,
         min_rating=min_rating,
         year_from=year_from,
+        actor=actor,
         limit=limit,
     )
