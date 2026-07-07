@@ -63,6 +63,22 @@ def get_similar_movies(movie_id: int):
     movies = get_movies_by_ids(sorted_movie_ids)
 
     for movie_data in movies:
+        shared_actor_count = movie_scores.get(
+            movie_data["id"],
+            0
+        )
+
+        movie_data["shared_actor_count"] = shared_actor_count
+
+        movie_data["similarity_score"] = (
+            calculate_similarity_score(
+                movie,
+                movie_data,
+                shared_actor_count,
+            )
+        )
+
+    for movie_data in movies:
         movie_data["shared_actor_count"] = movie_scores.get(
             movie_data["id"],
             0
@@ -70,10 +86,9 @@ def get_similar_movies(movie_id: int):
 
     movies = sorted(
         movies,
-        key=lambda movie: movie["shared_actor_count"],
+        key=lambda movie: movie["similarity_score"],
         reverse=True
     )
-
     return movies
 
 def get_movies_by_ids(movie_ids):
@@ -86,3 +101,42 @@ def get_movies_by_ids(movie_ids):
     )
 
     return response.data
+
+def calculate_similarity_score(source_movie, candidate_movie, shared_actor_count):
+    score = 0
+
+    # spoloční herci
+    score += shared_actor_count * 15
+
+    # spoločné žánre
+    source_genres = {
+        genre.strip().lower()
+        for genre in (source_movie.get("category") or "").split(",")
+    }
+
+    candidate_genres = {
+        genre.strip().lower()
+        for genre in (candidate_movie.get("category") or "").split(",")
+    }
+
+    shared_genres = source_genres.intersection(candidate_genres)
+
+    score += len(shared_genres) * 10
+
+    # podobný rating
+    rating_diff = abs(
+        (source_movie.get("rating") or 0)
+        - (candidate_movie.get("rating") or 0)
+    )
+
+    score += max(0, 10 - rating_diff * 2)
+
+    # podobný rok
+    year_diff = abs(
+        (source_movie.get("year") or 0)
+        - (candidate_movie.get("year") or 0)
+    )
+
+    score += max(0, 10 - year_diff)
+
+    return round(score, 2)
