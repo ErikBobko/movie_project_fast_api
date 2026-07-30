@@ -19,7 +19,7 @@ def get_highest_rated_actors():
         supabase
         .table("actor_rating_stats")
         .select("*")
-        .gte("movie_count", 5)
+        .gte("movie_count", 25)
         .order("avg_rating", desc=True)
         .limit(10)
         .execute()
