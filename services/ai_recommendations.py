@@ -1,5 +1,4 @@
 
-import inspect
 import json
 import os
 from typing import Any
@@ -11,9 +10,6 @@ from services.recommendations import get_recommendations
 
 
 load_dotenv()
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 GENRE_MAP = {
     "sci-fi": "Science Fiction",
@@ -36,6 +32,16 @@ GENRE_MAP = {
     "romance": "Romance",
     "family": "Family",
 }
+
+
+def _get_openai_client() -> OpenAI:
+    """Create the OpenAI client only when AI functionality is actually used."""
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "OPENAI_API_KEY environment variable is required for AI recommendations."
+        )
+    return OpenAI(api_key=api_key)
 
 
 def _safe_json_loads(text: str) -> Any:
@@ -64,6 +70,8 @@ def parse_user_prompt(prompt: str) -> dict:
     year_to:
         Upper boundary, e.g. "before 2020" or "up to 2020".
     """
+    client = _get_openai_client()
+
     response = client.responses.create(
         model="gpt-5-mini",
         input=f"""
@@ -181,56 +189,6 @@ def normalize_filters(filters: dict) -> dict:
             normalized["min_rating"] = 0
 
     return normalized
-
-
-def _call_recommendation_service(filters: dict, limit: int) -> list:
-    """
-    Call services.recommendations.get_recommendations while remaining
-    compatible with the current service function.
-
-    If the service does not yet support exact year/year_to parameters,
-    year is temporarily passed as year_from and results are then filtered
-    exactly in Python.
-    """
-    signature = inspect.signature(get_recommendations)
-    supported_parameters = set(signature.parameters)
-
-    kwargs = {
-        "genre": filters.get("genre"),
-        "min_rating": filters.get("min_rating") or 0,
-        "actor": filters.get("actor"),
-        "limit": limit,
-    }
-
-    exact_year = filters.get("year")
-    year_from = filters.get("year_from")
-    year_to = filters.get("year_to")
-
-    if "year" in supported_parameters:
-        kwargs["year"] = exact_year
-    elif "year_from" in supported_parameters:
-        # Fetch candidates from the exact year onward, then post-filter.
-        kwargs["year_from"] = exact_year if exact_year is not None else year_from
-
-    if "year_from" in supported_parameters and "year_from" not in kwargs:
-        kwargs["year_from"] = year_from
-
-    if "year_to" in supported_parameters:
-        kwargs["year_to"] = year_to
-
-    # Remove arguments unsupported by the current service implementation.
-    kwargs = {
-        key: value
-        for key, value in kwargs.items()
-        if key in supported_parameters
-    }
-
-    recommendations = get_recommendations(**kwargs) or []
-
-    if not isinstance(recommendations, list):
-        raise TypeError("get_recommendations() must return a list.")
-
-    return recommendations
 
 
 def _post_filter_recommendations(
@@ -379,6 +337,8 @@ def explain_recommendations(
         for movie in recommendations[:5]
     ]
 
+    client = _get_openai_client()
+
     response = client.responses.create(
         model="gpt-5-mini",
         input=f"""
@@ -463,8 +423,6 @@ def get_ai_recommendations(prompt: str) -> dict:
         }
 
     filters = normalize_filters(parse_user_prompt(prompt.strip()))
-
-    print("AI filters:", filters)
 
     recommendations = get_recommendations(
         genre=filters.get("genre"),

@@ -109,16 +109,9 @@ filtered_movies = filter_movies(
 # search filter
 if search_query:
     filtered_movies = [
-        m for m in movies
+        m for m in filtered_movies
         if search_query.lower() in m.get("title", "").lower()
     ]
-else:
-    filtered_movies = filter_movies(
-        movies,
-        filters["year_range"],
-        filters["min_rating"],
-        filters["min_votes"]
-    )
 
 if not filtered_movies:
     st.warning("No movies match the selected filters.")

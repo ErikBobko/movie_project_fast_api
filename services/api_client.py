@@ -1,8 +1,9 @@
 
-API_URL = "http://127.0.0.1:8000"
-
+import os
 import time
 import requests
+
+API_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
 
 def get_similar_movies(movie_id: int):
     response = requests.get(f"{API_URL}/movies/{movie_id}/similar")
