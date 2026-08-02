@@ -139,10 +139,13 @@ def calculate_recommendation_score(movie: dict) -> float:
 def get_recommendations(
     genre: str | None = None,
     min_rating: float = 0,
+    min_vote_count: int = 100,
     year: int | None = None,
     year_from: int | None = None,
     year_to: int | None = None,
     actor: str | None = None,
+    sort_by: str | None = None,
+    sort_order: str | None = None,
     limit: int = 10,
 ) -> list[dict]:
     """
@@ -164,6 +167,7 @@ def get_recommendations(
         .table("movies")
         .select("*")
         .gte("rating", float(min_rating or 0))
+        .gte("vote_count", min_vote_count)
         .not_.is_("rating", "null")
     )
 
@@ -201,13 +205,32 @@ def get_recommendations(
     if not movies:
         return []
 
-    for movie in movies:
-        movie["recommendation_score"] = calculate_recommendation_score(movie)
+    if sort_by == "rating":
+        movies.sort(
+            key=lambda movie: float(movie.get("rating") or 0),
+            reverse=sort_order != "asc",
+        )
 
-    movies.sort(
-        key=lambda movie: movie["recommendation_score"],
-        reverse=True,
-    )
+    elif sort_by == "popularity":
+        movies.sort(
+            key=lambda movie: float(movie.get("popularity") or 0),
+            reverse=sort_order != "asc",
+        )
+
+    elif sort_by == "year":
+        movies.sort(
+            key=lambda movie: int(movie.get("year") or 0),
+            reverse=sort_order != "asc",
+        )
+
+    else:
+        for movie in movies:
+            movie["recommendation_score"] = calculate_recommendation_score(movie)
+
+        movies.sort(
+            key=lambda movie: movie["recommendation_score"],
+            reverse=True,
+        )
 
     selected_movies = movies[:safe_limit]
 
@@ -224,3 +247,4 @@ def get_recommendations(
         movie["actors"] = actors_by_movie.get(movie.get("id"), [])
 
     return selected_movies
+

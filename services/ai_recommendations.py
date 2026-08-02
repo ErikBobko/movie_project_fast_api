@@ -82,6 +82,8 @@ Required JSON format:
   "year_from": null,
   "year_to": null,
   "actor": null,
+  "sort_by": null,
+  "sort_order": null,
   "mood": null,
   "theme": null,
   "reference_movie": null
@@ -108,6 +110,23 @@ Rules:
   family, love, artificial intelligence, or time travel.
 - reference_movie is the movie title when the user asks for something
   similar to a specific movie.
+  - sort_by can be "rating", "popularity", "year", or null.
+- sort_order can be "asc", "desc", or null.
+- For "worst rated" or "lowest rated", use:
+  "sort_by": "rating",
+  "sort_order": "asc".
+- For "best rated" or "highest rated", use:
+  "sort_by": "rating",
+  "sort_order": "desc".
+- For "most popular", use:
+  "sort_by": "popularity",
+  "sort_order": "desc".
+- For "oldest", use:
+  "sort_by": "year",
+  "sort_order": "asc".
+- For "newest", use:
+  "sort_by": "year",
+  "sort_order": "desc".
 """
     )
 
@@ -447,15 +466,17 @@ def get_ai_recommendations(prompt: str) -> dict:
 
     print("AI filters:", filters)
 
-    # Fetch more candidates because exact-year post-filtering can remove some.
-    candidates = _call_recommendation_service(filters, limit=25)
-
-    recommendations = _post_filter_recommendations(
-        recommendations=candidates,
-        filters=filters,
+    recommendations = get_recommendations(
+        genre=filters.get("genre"),
+        min_rating=filters.get("min_rating") or 0,
+        year=filters.get("year"),
+        year_from=filters.get("year_from"),
+        year_to=filters.get("year_to"),
+        actor=filters.get("actor"),
+        sort_by=filters.get("sort_by"),
+        sort_order=filters.get("sort_order"),
         limit=5,
     )
-
     if not recommendations:
         return {
             "prompt": prompt,
