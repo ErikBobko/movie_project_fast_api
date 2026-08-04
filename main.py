@@ -19,6 +19,7 @@ from services.similar_movies import get_similar_movies
 from services.content_recommendations import get_similar_movies_by_content
 from services.hybrid_recommendations import get_hybrid_similar_movies
 from services.ai_recommendations import parse_user_prompt, get_ai_recommendations
+from models.ai import PromptRequest
 
 app = FastAPI()
 
@@ -157,18 +158,9 @@ def hybrid_similar_movies(movie_id: int, limit: int = 10):
     return get_hybrid_similar_movies(movie_id, limit)
 
 @app.post("/ai/parse")
-def ai_parse(payload: dict):
-    prompt = payload.get("prompt", "")
-
-    return parse_user_prompt(prompt)
+def ai_parse(request: PromptRequest):
+    return parse_user_prompt(request.prompt)
 
 @app.post("/ai/recommendations")
-def ai_recommendations(payload: dict):
-    prompt = payload.get("prompt", "")
-
-    if not prompt:
-        return {
-            "error": "Prompt is required"
-        }
-
-    return get_ai_recommendations(prompt)
+def ai_recommendations(request: PromptRequest):
+    return get_ai_recommendations(request.prompt)
