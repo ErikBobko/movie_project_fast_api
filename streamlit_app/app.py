@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT_DIR))
 
-from services.analytics import get_movies
+from services.api_client import get_all_movies
 from services.filters import filter_movies
 from components.charts import render_movies_per_year, render_rating_split, render_top_genres
 from services.metrics import calculate_metrics
@@ -36,8 +36,11 @@ st.set_page_config(
 # =========================
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_movies():
-    return get_movies()
+    return get_all_movies()
+
+
 movies = load_movies()
+
 if not movies:
     st.error("No movies loaded")
     st.stop()

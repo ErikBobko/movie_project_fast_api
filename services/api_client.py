@@ -140,3 +140,26 @@ def get_ai_recommendations(prompt: str):
     )
     response.raise_for_status()
     return response.json()
+
+def get_all_movies(page_size: int = 1000) -> list[dict]:
+    movies = []
+    offset = 0
+
+    while True:
+        batch = safe_get(
+            f"{API_URL}/movies",
+            params={
+                "limit": page_size,
+                "offset": offset,
+            },
+            timeout=30,
+        ) or []
+
+        movies.extend(batch)
+
+        if len(batch) < page_size:
+            break
+
+        offset += page_size
+
+    return movies
