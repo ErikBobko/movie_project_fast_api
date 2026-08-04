@@ -135,7 +135,7 @@ B[Data Ingestion Pipeline]
 
 C[Data Transformation]
 
-D[(Movie Database
+D[(Movie Database)
 (Supabase PostgreSQL)]
 
 E[FastAPI Backend]
