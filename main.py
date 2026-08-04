@@ -44,8 +44,8 @@ def languages():
     return get_language_stats()
 
 @app.get("/movies")
-def get_movies():
-    return get_all_movies()
+def get_movies(limit: int = 100, offset: int = 0):
+    return get_all_movies(limit=limit, offset=offset)
 
 @app.get("/movies/by-tmdb-id/{tmdb_id}")
 def movie_by_tmdb_id(tmdb_id: int):

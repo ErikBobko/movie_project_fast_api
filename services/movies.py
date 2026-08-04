@@ -10,9 +10,22 @@ from db import supabase
 from models.movie import Movie
 
 
-def get_all_movies():
-    response = supabase.table("movies").select("*").execute()
-    return response.data
+def get_all_movies(limit: int = 100, offset: int = 0):
+    safe_limit = max(1, min(limit, 1000))
+    safe_offset = max(0, offset)
+
+    response = (
+        supabase
+        .table("movies")
+        .select("*")
+        .range(
+            safe_offset,
+            safe_offset + safe_limit - 1,
+        )
+        .execute()
+    )
+
+    return response.data or []
 
 
 def get_movie_by_tmdb_id(tmdb_id: int):
