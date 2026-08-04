@@ -163,3 +163,38 @@ I --> H
 
 H --> D
 ```
+## 📁 Project Structure
+
+```text
+movie_project_fast_api/
+│
+├── clients/
+│   └── TMDB API communication
+│
+├── pipelines/
+│   └── Data ingestion and synchronization
+│
+├── services/
+│   └── Business logic and database operations
+│
+├── models/
+│   └── Pydantic data models
+│
+├── streamlit_app/
+│   └── Interactive analytics dashboard
+│
+├── docs/
+│   └── README screenshots
+│
+├── db.py
+│   └── Supabase connection
+│
+├── config.py
+│   └── Environment configuration
+│
+├── main.py
+│   └── FastAPI application
+│
+└── requirements.txt
+    └── Project dependencies
+```
