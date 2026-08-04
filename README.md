@@ -130,17 +130,23 @@ The application also includes AI-powered movie recommendations. A natural-langua
 flowchart TD
 
 A[TMDB API]
+
 B[Data Ingestion Pipeline]
+
 C[Data Transformation]
-D[(Movie Database<br/>Supabase PostgreSQL)]
+
+D[(Movie Database
+(Supabase PostgreSQL))]
 
 E[FastAPI Backend]
 
 F[Swagger API Docs]
+
 G[Streamlit Dashboard]
 
-H[OpenAI GPT]
-I[Recommendation Engine]
+H[AI Recommendation Engine]
+
+I[OpenAI GPT]
 
 A --> B
 B --> C
@@ -153,7 +159,7 @@ E --> G
 
 G --> H
 H --> I
-I --> D
-D --> I
-I --> G
+I --> H
+
+H --> D
 ```
