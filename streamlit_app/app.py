@@ -17,6 +17,7 @@ from components.sidebar import render_sidebar
 from streamlit_app.pages.movie_details import render_movie_details
 from streamlit_app.pages.actor_details import render_actor_details
 from pages.actors import render_actors_page
+from pages.recommendations import render_recommendations
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -75,11 +76,6 @@ if st.session_state.app_mode == "actor_detail":
     render_actor_details(st.session_state.selected_actor_id)
     st.stop()
 
-
-# =========================
-# SIDEBAR
-# =========================
-
 # =========================
 # SIDEBAR
 # =========================
@@ -96,6 +92,10 @@ if section == "Actors":
     render_actors_page()
     st.stop()
 
+if section == "AI Recommendations":
+    render_recommendations()
+    st.stop()
+
 # =========================
 # FILTERING (BASE FILTERS)
 # =========================
@@ -109,16 +109,9 @@ filtered_movies = filter_movies(
 # search filter
 if search_query:
     filtered_movies = [
-        m for m in movies
+        m for m in filtered_movies
         if search_query.lower() in m.get("title", "").lower()
     ]
-else:
-    filtered_movies = filter_movies(
-        movies,
-        filters["year_range"],
-        filters["min_rating"],
-        filters["min_votes"]
-    )
 
 if not filtered_movies:
     st.warning("No movies match the selected filters.")
@@ -152,7 +145,7 @@ chart_df, rating_split, genre_df = build_charts_data(df)
 main = st.container()
 
 with main:
-    st.title("? Movie Analytics Dashboard")
+    st.title("🍿 Movie Analytics Dashboard")
 
     st.markdown(
         """

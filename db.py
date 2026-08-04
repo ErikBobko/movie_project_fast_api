@@ -26,4 +26,10 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 
+if not SUPABASE_URL:
+    raise RuntimeError("SUPABASE_URL environment variable is required.")
+
+if not SUPABASE_KEY:
+    raise RuntimeError("SUPABASE_KEY environment variable is required.")
+
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)

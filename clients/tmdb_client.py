@@ -1,16 +1,10 @@
-"""
-TMDB MODULE
+"""Modul pre komunikáciu s externým TMDB API.
 
-Úloha:
-- komunikuje s TMDB API (The Movie Database)
-- sťahuje surové dáta o filmoch
-
-Dôležité:
-- NEpracuje s databázou
-- NErobí analýzy
-- NEobsahuje business logiku
-
-Je to API client pre TMDB.
+Tento súbor získava údaje o filmoch, žánroch, kreditoch a detaile
+aktorov. Nefunguje s databázou Supabase, neukladá dáta a
+neobsahuje hlavnú aplikačnú logiku. Menšie pomocné transformácie
+pre cast a crew tu ostávajú, ale výrobu logiky pre aplikáciu
+majú služby a pipeline.
 """
 
 import requests

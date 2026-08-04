@@ -1,9 +1,14 @@
 
-API_URL = "http://127.0.0.1:8000"
-
+import os
 import time
 import requests
 
+API_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+
+def get_similar_movies(movie_id: int):
+    response = requests.get(f"{API_URL}/movies/{movie_id}/similar")
+    response.raise_for_status()
+    return response.json()
 
 def safe_get(url, timeout=5, retries=2, **kwargs):
     for attempt in range(retries):
@@ -127,3 +132,11 @@ def get_best_actors():
 
     except requests.RequestException:
         return []
+
+def get_ai_recommendations(prompt: str):
+    response = requests.post(
+        f"{API_URL}/ai/recommendations",
+        json={"prompt": prompt}
+    )
+    response.raise_for_status()
+    return response.json()
