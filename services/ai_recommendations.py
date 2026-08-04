@@ -374,7 +374,7 @@ Rules:
 - Every returned movie already satisfies the enforced year and rating filters.
 - Keep each reason short and natural.
 - Return only valid JSON and no Markdown.
-
+- Write each recommendation reason in the same language as the user's request.
 Required format:
 [
   {{

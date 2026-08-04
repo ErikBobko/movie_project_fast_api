@@ -145,7 +145,7 @@ chart_df, rating_split, genre_df = build_charts_data(df)
 main = st.container()
 
 with main:
-    st.title("? Movie Analytics Dashboard")
+    st.title("🍿 Movie Analytics Dashboard")
 
     st.markdown(
         """

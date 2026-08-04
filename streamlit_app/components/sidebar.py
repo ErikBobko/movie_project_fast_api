@@ -60,8 +60,35 @@ def render_sidebar(movies):
 
     # ABOUT
     elif section == "About":
-        st.subheader("About")
-        st.write("TMDB API")
-        st.write("Supabase")
+        st.subheader("About this project")
+
+        st.write(
+            """
+            Movie Analytics is an end-to-end application that downloads movie data
+            from TMDB, transforms it, stores it in Supabase and exposes it through
+            a FastAPI backend and Streamlit dashboard.
+            """
+        )
+
+        st.markdown("### Technology stack")
+        st.markdown(
+            """
+            - **FastAPI** – backend API
+            - **Supabase** – PostgreSQL database
+            - **Streamlit** – interactive dashboard
+            - **TMDB API** – external movie data source
+            - **OpenAI API** – natural-language movie recommendations
+            """
+        )
+
+        st.markdown("### Main features")
+        st.markdown(
+            """
+            - Movie and actor analytics
+            - Search and filtering
+            - Content-based and hybrid recommendations
+            - AI-powered natural-language recommendations
+            """
+        )
 
     return section, search_query, st.session_state.filters

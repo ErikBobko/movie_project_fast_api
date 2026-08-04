@@ -12,7 +12,7 @@ def render_recommendations():
 
     prompt = st.text_area(
         "What would you like to watch?",
-        placeholder="Example: Chcem sci-fi film s Tomom Hanksom po roku 2010",
+        placeholder="Example: Find me a sci-fi movie with Tom Hanks after 2010",
         height=120,
     )
 
