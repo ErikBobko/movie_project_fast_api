@@ -1,4 +1,12 @@
 
+"""Služba pre spracovanie AI promptov a rozpoznávanie filtrov.
+
+Tento modul premieňa prirodzený text používateľa na štruktúrované
+filtre pre odporúčania. Nepoužíva databázové operácie priamo a
+neobsahuje obchodnú logiku odporúčaní, ktorú spravuje služba
+recommendations.
+"""
+
 import json
 import os
 from typing import Any

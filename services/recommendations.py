@@ -1,3 +1,10 @@
+"""Služba pre odporúčania filmov na základe filtrov a skóre.
+
+Tento modul vyberá vhodné filmy z databázy a triedi ich podľa
+používateľských kritérií. Neodpowiada za parsovanie prirodzeného
+jazykového promptu, to patrí do AI modulu.
+"""
+
 from db import supabase
 
 

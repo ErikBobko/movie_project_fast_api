@@ -1,33 +1,24 @@
-"""
-FASTAPI ENTRY POINT
+"""Hlavný FastAPI vstupný bod projektu.
 
-Úloha:
-- spúšťa backend server
-- definuje API endpointy
-- prepája služby a databázovú vrstvu
-- vystavuje dáta pre Streamlit alebo iné klienty
-
-Dôležité:
-- neobsahuje business logiku
-- nevykonáva analytické výpočty
-- endpointy delegujú prácu na services alebo databázovú vrstvu
+Tento súbor definuje HTTP endpointy a deleguje prácu do služieb.
+Nedrží obchodné pravidlá ani databázovú logiku priamo v routech.
+Súvisiace operácie patria do služieb a pipeline.
 """
 from fastapi import FastAPI
-from db import supabase
 from models.movie import Movie
 from clients.tmdb_client import get_movie_cast, get_movie_crew_summary
-from pipelines.ingestion import  sync_popular_movies
+from pipelines.ingestion import sync_popular_movies
 from pipelines.full_sync import sync_full_database
-from pipelines.cast_sync import sync_movie_casts , sync_missing_movie_casts,sync_actor_details
-from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id,get_all_actors
-from services.movies import get_movie_by_id
-from services.actor_analytics import get_top_actors_by_movie_count,get_highest_rated_actors,get_most_popular_actors,get_best_actors
-from services.analytics import  get_top_rated, get_language_stats
+from pipelines.cast_sync import sync_movie_casts, sync_missing_movie_casts, sync_actor_details
+from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id, get_all_actors
+from services.movies import get_all_movies, get_movie_by_id, get_movie_by_tmdb_id, create_movie
+from services.actor_analytics import get_top_actors_by_movie_count, get_highest_rated_actors, get_most_popular_actors, get_best_actors
+from services.analytics import get_top_rated, get_language_stats
 from services.recommendations import get_recommendations
 from services.similar_movies import get_similar_movies
 from services.content_recommendations import get_similar_movies_by_content
 from services.hybrid_recommendations import get_hybrid_similar_movies
-from services.ai_recommendations import parse_user_prompt,get_ai_recommendations
+from services.ai_recommendations import parse_user_prompt, get_ai_recommendations
 
 app = FastAPI()
 
@@ -53,12 +44,11 @@ def languages():
 
 @app.get("/movies")
 def get_movies():
-    return supabase.table("movies").select("*").execute().data
+    return get_all_movies()
 
-@app.get("/movies/{tmdb_id}")
-def get_movie(tmdb_id: int):
-    print("tmdb_id:", tmdb_id, type(tmdb_id))
-    return (supabase.table("movies").select("*").eq("tmdb_id", tmdb_id).maybe_single().execute().data )
+@app.get("/movies/by-tmdb-id/{tmdb_id}")
+def movie_by_tmdb_id(tmdb_id: int):
+    return get_movie_by_tmdb_id(tmdb_id)
 
 @app.get("/movies/{tmdb_id}/cast")
 def get_cast(tmdb_id: int):
@@ -89,9 +79,8 @@ def sync_casts(limit: int = 100, offset: int = 0):
     return sync_movie_casts(limit=limit, offset=offset)
 
 @app.post("/movies")
-def create_movie(movie: Movie):
-    response = supabase.table("movies").insert(movie.model_dump()).execute()
-    return response.data
+def create_new_movie(movie: Movie):
+    return create_movie(movie)
 
 @app.post("/sync/casts/missing")
 def sync_missing_casts(limit: int = 100):
@@ -133,15 +122,25 @@ def sync_full(
 def recommendations(
     genre: str | None = None,
     min_rating: float = 0,
+    min_vote_count: int = 100,
+    year: int | None = None,
     year_from: int | None = None,
+    year_to: int | None = None,
     actor: str | None = None,
+    sort_by: str | None = None,
+    sort_order: str | None = None,
     limit: int = 10,
 ):
     return get_recommendations(
         genre=genre,
         min_rating=min_rating,
+        min_vote_count=min_vote_count,
+        year=year,
         year_from=year_from,
+        year_to=year_to,
         actor=actor,
+        sort_by=sort_by,
+        sort_order=sort_order,
         limit=limit,
     )
 
