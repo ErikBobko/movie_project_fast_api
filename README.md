@@ -216,6 +216,9 @@ Instead of allowing AI to generate random movie suggestions, every recommendatio
 Find me the best action movies after 2020 with Brad Pitt.
 ```
 
+<p align="center">
+  <img src="docs/screenshots/ai-recommendations.png" alt="AI Recommendation Flow" width="100%">
+</p>
 ↓
 
 **Extracted filters**
