@@ -246,7 +246,24 @@ Find me the best action movies after 2020 with Brad Pitt.
 > OpenAI is used only to understand the user's request and generate explanations.
 > Movie recommendations are always selected from the application's own database.
 > 
-> ## 🚀 API Endpoints
+
+## 🔎 Search
+
+ <p align="center">
+  <img src="docs/screenshots/search.png" alt="AI Recommendation Flow" width="100%">
+</p>
+
+##  🎭 Actor
+
+ <p align="center">
+  <img src="docs/screenshots/actors.png" alt="AI Recommendation Flow" width="100%">
+</p>
+
+ <p align="center">
+  <img src="docs/screenshots/actor-detail.png" alt="AI Recommendation Flow" width="100%">
+</p>
+
+## 🚀 API Endpoints
 
 The FastAPI backend exposes REST endpoints for movie analytics, actor information, synchronization and AI recommendations.
 
