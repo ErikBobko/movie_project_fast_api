@@ -20,7 +20,7 @@ Built with **FastAPI**, **Supabase**, **Streamlit**, **TMDB API** and **OpenAI**
 
 📂 **GitHub Repository:** https://github.com/ErikBobko/movie_project_fast_api
 
-🖥️ **Live Dashboard:** Coming soon
+🖥️ **Live Dashboard:** https://movie-analytics-valasek.streamlit.app/
 </div>
 
 ---
@@ -242,3 +242,70 @@ Find me the best action movies after 2020 with Brad Pitt.
 >
 > OpenAI is used only to understand the user's request and generate explanations.
 > Movie recommendations are always selected from the application's own database.
+> 
+> ## 🚀 API Endpoints
+
+The FastAPI backend exposes REST endpoints for movie analytics, actor information, synchronization and AI recommendations.
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/movies` | Retrieve movies with pagination |
+| GET | `/movies/{tmdb_id}` | Movie details |
+| GET | `/movies/{tmdb_id}/cast` | Movie cast |
+| GET | `/movies/{tmdb_id}/crew` | Movie crew |
+| GET | `/actors` | Search actors |
+| GET | `/actors/{tmdb_actor_id}` | Actor profile |
+| GET | `/analytics/top-rated` | Highest-rated movies |
+| GET | `/analytics/actors/top` | Top actors by movie count |
+| POST | `/sync/full` | Synchronize the local database |
+| POST | `/ai/recommendations` | AI-powered recommendations |
+
+
+<p align="center">
+  <img src="docs/screenshots/swagger-api.png" width="100%">
+</p>
+
+## 🌐 Live Demo
+
+| Service | Link |
+|---------|------|
+| 🎬 Streamlit Dashboard | https://movie-analytics-valasek.streamlit.app/ |
+| 🚀 FastAPI Swagger | https://movie-project-fast-api.onrender.com/docs |
+
+## 🛠 Tech Stack
+
+| Category | Technologies |
+|----------|--------------|
+| Language | Python |
+| Backend | FastAPI |
+| Database | Supabase PostgreSQL |
+| Frontend | Streamlit |
+| AI | OpenAI GPT |
+| Data Source | TMDB API |
+| Deployment | Render, Streamlit Community Cloud |
+| Version Control | Git & GitHub |
+
+## ⚙️ Installation
+
+```bash
+git clone https://github.com/ErikBobko/movie_project_fast_api.git
+
+cd movie_project_fast_api
+
+pip install -r requirements.txt
+
+uvicorn main:app --reload
+
+streamlit run streamlit_app/app.py
+```
+## 🔮 Future Improvements
+
+- User authentication
+- Personal watchlists
+- Advanced recommendation algorithms
+- Docker deployment
+- Unit and integration testing
+- CI/CD pipeline
+## 📄 License
+
+This project was created for educational purposes and as part of my backend Python portfolio.
