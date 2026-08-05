@@ -200,36 +200,45 @@ movie_project_fast_api/
 ```
 ## 🤖 AI Recommendation Flow
 
-The recommendation system combines natural language processing with a database-driven recommendation engine.
+The AI recommendation system combines natural language understanding with deterministic database queries.
 
-Instead of allowing AI to generate random movie suggestions, the application searches only within its own movie database.
+Instead of allowing AI to generate random movie suggestions, every recommendation comes exclusively from the application's own movie database.
 
-The recommendation process consists of four simple steps:
+<p align="center">
+  <img src="docs/screenshots/ai-flow.png" alt="AI Recommendation Flow" width="100%">
+</p>
 
-```mermaid
-flowchart LR
+### Example
 
-A[User Prompt]
+**User request**
 
-B[OpenAI Parser]
-
-C[Structured Filters]
-
-D[Recommendation Engine]
-
-E[(Supabase Database)]
-
-F[Matching Movies]
-
-G[OpenAI Explanation]
-
-H[User]
-
-A --> B
-B --> C
-C --> D
-D --> E
-E --> F
-F --> G
-G --> H
+```text
+Find me the best action movies after 2020 with Brad Pitt.
 ```
+
+↓
+
+**Extracted filters**
+
+```json
+{
+  "genre": "Action",
+  "year_from": 2020,
+  "actor": "Brad Pitt",
+  "sort_by": "rating"
+}
+```
+
+↓
+
+**Recommendation process**
+
+1. OpenAI extracts structured filters from the prompt.
+2. The recommendation engine searches the local Supabase database.
+3. Matching movies are ranked according to the selected criteria.
+4. OpenAI generates a short explanation for each recommendation.
+
+> **Note**
+>
+> OpenAI is used only to understand the user's request and generate explanations.
+> Movie recommendations are always selected from the application's own database.
