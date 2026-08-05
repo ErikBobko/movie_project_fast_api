@@ -198,3 +198,38 @@ movie_project_fast_api/
 └── requirements.txt
     └── Project dependencies
 ```
+## 🤖 AI Recommendation Flow
+
+The recommendation system combines natural language processing with a database-driven recommendation engine.
+
+Instead of allowing AI to generate random movie suggestions, the application searches only within its own movie database.
+
+The recommendation process consists of four simple steps:
+
+```mermaid
+flowchart LR
+
+A[User Prompt]
+
+B[OpenAI Parser]
+
+C[Structured Filters]
+
+D[Recommendation Engine]
+
+E[(Supabase Database)]
+
+F[Matching Movies]
+
+G[OpenAI Explanation]
+
+H[User]
+
+A --> B
+B --> C
+C --> D
+D --> E
+E --> F
+F --> G
+G --> H
+```
