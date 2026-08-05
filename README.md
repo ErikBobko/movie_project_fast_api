@@ -259,6 +259,8 @@ Find me the best action movies after 2020 with Brad Pitt.
   <img src="docs/screenshots/actors.png" alt="AI Recommendation Flow" width="100%">
 </p>
 
+---
+
  <p align="center">
   <img src="docs/screenshots/actor-detail.png" alt="AI Recommendation Flow" width="100%">
 </p>
