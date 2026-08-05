@@ -36,15 +36,29 @@ st.set_page_config(
 # =========================
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_movies():
-    return get_all_movies()
+    movies = get_all_movies()
+
+    if not movies:
+        raise RuntimeError("Backend is unavailable or returned no movies.")
+
+    return movies
 
 
-movies = load_movies()
+try:
+    with st.spinner("Loading movies. The backend may need a moment to wake up..."):
+        movies = load_movies()
 
-if not movies:
-    st.error("No movies loaded")
+except RuntimeError:
+    st.warning(
+        "The backend is waking up or temporarily unavailable. "
+        "Please wait about one minute and try again."
+    )
+
+    if st.button("Retry"):
+        load_movies.clear()
+        st.rerun()
+
     st.stop()
-
 
 
 # =========================

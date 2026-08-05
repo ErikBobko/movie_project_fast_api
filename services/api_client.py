@@ -10,7 +10,7 @@ def get_similar_movies(movie_id: int):
     response.raise_for_status()
     return response.json()
 
-def safe_get(url, timeout=5, retries=2, **kwargs):
+def safe_get(url, timeout=75, retries=2, **kwargs):
     for attempt in range(retries):
         try:
             response = requests.get(
@@ -152,8 +152,8 @@ def get_all_movies(page_size: int = 1000) -> list[dict]:
                 "limit": page_size,
                 "offset": offset,
             },
-            timeout=30,
-        ) or []
+            timeout=75,
+        )
 
         movies.extend(batch)
 
