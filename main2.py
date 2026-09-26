@@ -5,6 +5,7 @@ from routers.actors import router as actors_router
 from routers.analytics import router as analytics_router
 from routers.recommendations import router as recommendations_router
 from routers.sync import router as sync_router
+from routers.ai import router as ai_router
 
 
 app = FastAPI(title="Movie Analytics API",description="API for movie analytics and recommendations",version="1.0.0")
@@ -13,6 +14,7 @@ app.include_router(actors_router)
 app.include_router(analytics_router)
 app.include_router(recommendations_router)
 app.include_router(sync_router)
+app.include_router(ai_router)
 
 
 @app.get("/", tags=["System"])
