@@ -22,15 +22,6 @@ def get_top_rated(limit=10):
 
     return response.data
 
-
-"""KOLKO FILMOV JE V KAŽDOM JAZYKU"""
-
-
-def get_language_stats():
-    response = supabase.table("movies").select("*").limit(1).execute()
-    return response.data
-
-
 def get_movies():
     response = (
         supabase

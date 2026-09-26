@@ -13,7 +13,7 @@ from pipelines.cast_sync import sync_movie_casts, sync_missing_movie_casts, sync
 from services.actors import get_actor_by_tmdb_id, get_actor_movies_by_tmdb_id, get_all_actors
 from services.movies import get_all_movies, get_movie_by_id, get_movie_by_tmdb_id, create_movie
 from services.actor_analytics import get_top_actors_by_movie_count, get_highest_rated_actors, get_most_popular_actors, get_best_actors
-from services.analytics import get_top_rated, get_language_stats
+from services.analytics import get_top_rated
 from services.recommendations import get_recommendations
 from services.similar_movies import get_similar_movies
 from services.content_recommendations import get_similar_movies_by_content
@@ -38,10 +38,6 @@ def top_rated():
 @app.get("/analytics/actors/popular")
 def most_popular_actors():
     return get_most_popular_actors()
-
-@app.get("/analytics/languages")
-def languages():
-    return get_language_stats()
 
 @app.get("/movies")
 def get_movies(limit: int = 100, offset: int = 0):

@@ -2,11 +2,13 @@ from fastapi import FastAPI
 
 from routers.movies import router as movies_router
 from routers.actors import router as actors_router
+from routers.analytics import router as analytics_router
 
 
 app = FastAPI(title="Movie Analytics API",description="API for movie analytics and recommendations",version="1.0.0")
 app.include_router(movies_router)
 app.include_router(actors_router)
+app.include_router(analytics_router)
 
 @app.get("/", tags=["System"])
 def root():
