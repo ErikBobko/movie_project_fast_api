@@ -29,11 +29,11 @@ def movie_by_tmdb_id(tmdb_id: int):
 def movie_by_id(movie_id: int):
     return get_movie_by_id(movie_id)
 
-@router.get("/{tmdb_id}/cast}")
+@router.get("/{tmdb_id}/cast")
 def get_cast(tmdb_id: int):
     return get_movie_cast(tmdb_id)
 
-@router.get("/{tmdb_id}/crew}")
+@router.get("/{tmdb_id}/crew")
 def get_crew(tmdb_id: int):
     return get_movie_crew_summary(tmdb_id)
 
@@ -41,14 +41,3 @@ def get_crew(tmdb_id: int):
 def create_new_movie(movie: Movie):
     return create_movie(movie)
 
-@router.get("/{movie_id}/similar")
-def similar_movies(movie_id: int):
-    return get_similar_movies(movie_id)
-
-@router.get("/{movie_id}/similar/content")
-def similar_movies_by_content(movie_id: int, limit: int = 10):
-    return get_similar_movies_by_content(movie_id, limit)
-
-@router.get("/{movie_id}/similar/hybrid")
-def hybrid_similar_movies(movie_id: int, limit: int = 10):
-    return get_hybrid_similar_movies(movie_id, limit)
