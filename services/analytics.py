@@ -13,12 +13,15 @@ Dôležité:
 """
 from db import supabase
 
-def get_top_rated(limit=10):
-    response = supabase.table("movies") \
-        .select("*") \
-        .order("rating", desc=True) \
-        .limit(limit) \
+def get_top_rated(limit: int = 10):
+    response = (
+        supabase.table("movies")
+        .select("*")
+        .gte("vote_count", 10000)
+        .order("rating", desc=True)
+        .limit(limit)
         .execute()
+    )
 
     return response.data
 
