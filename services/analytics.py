@@ -1,50 +1,21 @@
-"""
-ANALYTICS SERVICE
 
-Úloha:
-- načítava dáta z databázy
-- pripravuje analytické výstupy
-- poskytuje dáta pre API a Streamlit
+from repositories.analytics import (
+    fetch_top_rated,
+    fetch_movies,
+    fetch_movies_count,
+)
 
-Dôležité:
-- neposiela requesty do TMDB
-- nemení dáta v databáze
-- pracuje iba s uloženými dátami
-"""
-from db import supabase
 
 def get_top_rated(limit: int = 10):
-    response = (
-        supabase.table("movies")
-        .select("*")
-        .gte("vote_count", 10000)
-        .order("rating", desc=True)
-        .limit(limit)
-        .execute()
-    )
+    return fetch_top_rated(limit)
 
-    return response.data
 
 def get_movies():
-    response = (
-        supabase
-        .table("movies")
-        .select("*")
-        .range(0, 11000)
-        .execute()
-    )
-
-    return response.data
+    return fetch_movies()
 
 def get_movies_count():
-    response = (
-        supabase
-        .table("movies")
-        .select("*", count="exact")
-        .execute()
-    )
+    return fetch_movies_count()
 
-    return response.count
 
 def get_kpis():
     movies = get_movies()
