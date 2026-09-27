@@ -1,50 +1,29 @@
-from db import supabase
+
+from repositories.actors import (
+    fetch_actor_by_tmdb_id,
+    fetch_movie_ids_by_actor_id,
+    fetch_movies_by_ids,
+    fetch_all_actors,
+)
 
 
 def get_actor_by_tmdb_id(tmdb_actor_id: int):
-    response = (
-        supabase
-        .table("actors")
-        .select("*")
-        .eq("tmdb_actor_id", tmdb_actor_id)
-        .limit(1)
-        .execute()
-    )
-
-    if not response.data:
-        return None
-
-    return response.data[0]
+    return fetch_actor_by_tmdb_id(tmdb_actor_id)
 
 
 def get_actor_movies_by_tmdb_id(tmdb_actor_id: int):
-    actor = get_actor_by_tmdb_id(tmdb_actor_id)
+    actor = fetch_actor_by_tmdb_id(tmdb_actor_id)
 
     if not actor:
         return []
 
-    relations_response = (
-        supabase
-        .table("movie_actors")
-        .select("movie_id")
-        .eq("actor_id", actor["id"])
-        .execute()
-    )
-
-    movie_ids = [r["movie_id"] for r in relations_response.data]
+    movie_ids = fetch_movie_ids_by_actor_id(actor["id"])
 
     if not movie_ids:
         return []
 
-    movies_response = (
-        supabase
-        .table("movies")
-        .select("*")
-        .in_("id", movie_ids)
-        .execute()
-    )
+    return fetch_movies_by_ids(movie_ids)
 
-    return movies_response.data
 
 
 def get_all_actors(
@@ -52,20 +31,8 @@ def get_all_actors(
     offset: int = 0,
     search: str | None = None
 ):
-    query = (
-        supabase
-        .table("actors")
-        .select("*")
-        .order("name")
+    return fetch_all_actors(
+        limit=limit,
+        offset=offset,
+        search=search,
     )
-
-    if search:
-        query = query.ilike("name", f"%{search}%")
-
-    response = (
-        query
-        .range(offset, offset + limit - 1)
-        .execute()
-    )
-
-    return response.data
