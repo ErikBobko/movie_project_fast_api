@@ -1,23 +1,11 @@
-from db import supabase
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
-
-def get_movies_with_overview():
-    response = (
-        supabase
-        .table("movies")
-        .select("id, title, overview, rating, year, category, poster_path")
-        .not_.is_("overview", "null")
-        .range(0, 11000)
-        .execute()
-    )
-
-    return response.data or []
+from repositories.content_recommendations import fetch_movies_with_overview
 
 
 def get_similar_movies_by_content(movie_id: int, limit: int = 10):
-    movies = get_movies_with_overview()
+    movies = fetch_movies_with_overview()
 
     if not movies:
         return []
