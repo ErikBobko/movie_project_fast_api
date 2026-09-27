@@ -1,32 +1,10 @@
-from db import supabase
+
 from services.movies import get_movie_by_id
-
-
-def get_movie_actor_ids(movie_id: int):
-    response = (
-        supabase
-        .table("movie_actors")
-        .select("actor_id")
-        .eq("movie_id", movie_id)
-        .execute()
-    )
-
-    return {
-        row["actor_id"]
-        for row in response.data
-    }
-
-
-def get_movies_by_actor_ids(actor_ids):
-    response = (
-        supabase
-        .table("movie_actors")
-        .select("movie_id, actor_id")
-        .in_("actor_id", list(actor_ids))
-        .execute()
-    )
-
-    return response.data
+from repositories.similar_movies import (
+    fetch_movie_actor_ids,
+    fetch_movies_by_actor_ids,
+    fetch_movies_by_ids,
+)
 
 
 def get_similar_movies(movie_id: int):
@@ -35,12 +13,12 @@ def get_similar_movies(movie_id: int):
     if not movie:
         return []
 
-    actor_ids = get_movie_actor_ids(movie_id)
+    actor_ids = fetch_movie_actor_ids(movie_id)
 
     if not actor_ids:
         return []
 
-    movie_actor_rows = get_movies_by_actor_ids(actor_ids)
+    movie_actor_rows = fetch_movies_by_actor_ids(actor_ids)
 
     movie_scores = {}
 
@@ -60,7 +38,10 @@ def get_similar_movies(movie_id: int):
         reverse=True
     )[:10]
 
-    movies = get_movies_by_ids(sorted_movie_ids)
+    if not sorted_movie_ids:
+        return []
+
+    movies = fetch_movies_by_ids(sorted_movie_ids)
 
     for movie_data in movies:
         shared_actor_count = movie_scores.get(
@@ -78,12 +59,6 @@ def get_similar_movies(movie_id: int):
             )
         )
 
-    for movie_data in movies:
-        movie_data["shared_actor_count"] = movie_scores.get(
-            movie_data["id"],
-            0
-        )
-
     movies = sorted(
         movies,
         key=lambda movie: movie["similarity_score"],
@@ -91,16 +66,7 @@ def get_similar_movies(movie_id: int):
     )
     return movies
 
-def get_movies_by_ids(movie_ids):
-    response = (
-        supabase
-        .table("movies")
-        .select("*")
-        .in_("id", movie_ids)
-        .execute()
-    )
 
-    return response.data
 
 def calculate_similarity_score(source_movie, candidate_movie, shared_actor_count):
     score = 0
