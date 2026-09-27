@@ -1,32 +1,18 @@
-"""Služba pre odporúčania filmov na základe filtrov a skóre.
 
-Tento modul vyberá vhodné filmy z databázy a triedi ich podľa
-používateľských kritérií. Neodpowiada za parsovanie prirodzeného
-jazykového promptu, to patrí do AI modulu.
-"""
-
-from db import supabase
+from repositories.recommendations import (
+    fetch_actors_by_name,
+    fetch_movie_ids_by_actor_ids,
+    fetch_actor_relations_by_movie_ids,
+    fetch_actors_by_ids,
+    fetch_recommendation_candidates
+)
 
 
 def get_movie_ids_by_actor(actor_name: str) -> list[int]:
-    """
-    Return IDs of movies connected to actors whose name matches actor_name.
-
-    The actor search is case-insensitive and allows partial matching.
-    """
     if not actor_name or not actor_name.strip():
         return []
 
-    actor_response = (
-        supabase
-        .table("actors")
-        .select("id, name")
-        .ilike("name", f"%{actor_name.strip()}%")
-        .limit(10)
-        .execute()
-    )
-
-    actors = actor_response.data or []
+    actors = fetch_actors_by_name(actor_name.strip())
 
     if not actors:
         return []
@@ -40,15 +26,7 @@ def get_movie_ids_by_actor(actor_name: str) -> list[int]:
     if not actor_ids:
         return []
 
-    movie_actor_response = (
-        supabase
-        .table("movie_actors")
-        .select("movie_id")
-        .in_("actor_id", actor_ids)
-        .execute()
-    )
-
-    movie_actor_rows = movie_actor_response.data or []
+    movie_actor_rows = fetch_movie_ids_by_actor_ids(actor_ids)
 
     return list({
         row["movie_id"]
@@ -57,28 +35,12 @@ def get_movie_ids_by_actor(actor_name: str) -> list[int]:
     })
 
 
-def get_actor_names_by_movie_ids(movie_ids: list[int]) -> dict[int, list[str]]:
-    """
-    Return actor names grouped by movie ID.
 
-    Example:
-    {
-        123: ["Brad Pitt", "Sandra Bullock"],
-        456: ["Another Actor"]
-    }
-    """
+def get_actor_names_by_movie_ids(movie_ids: list[int]) -> dict[int, list[str]]:
     if not movie_ids:
         return {}
 
-    movie_actor_response = (
-        supabase
-        .table("movie_actors")
-        .select("movie_id, actor_id")
-        .in_("movie_id", movie_ids)
-        .execute()
-    )
-
-    relations = movie_actor_response.data or []
+    relations = fetch_actor_relations_by_movie_ids(movie_ids)
 
     if not relations:
         return {}
@@ -92,15 +54,7 @@ def get_actor_names_by_movie_ids(movie_ids: list[int]) -> dict[int, list[str]]:
     if not actor_ids:
         return {}
 
-    actors_response = (
-        supabase
-        .table("actors")
-        .select("id, name")
-        .in_("id", actor_ids)
-        .execute()
-    )
-
-    actors = actors_response.data or []
+    actors = fetch_actors_by_ids(actor_ids)
 
     actor_name_by_id = {
         actor["id"]: actor["name"]
@@ -122,7 +76,6 @@ def get_actor_names_by_movie_ids(movie_ids: list[int]) -> dict[int, list[str]]:
 
     return actors_by_movie
 
-
 def calculate_recommendation_score(movie: dict) -> float:
     rating = float(movie.get("rating") or 0)
     popularity = float(movie.get("popularity") or 0)
@@ -143,6 +96,8 @@ def calculate_recommendation_score(movie: dict) -> float:
     return round(score, 2)
 
 
+
+
 def get_recommendations(
     genre: str | None = None,
     min_rating: float = 0,
@@ -155,37 +110,10 @@ def get_recommendations(
     sort_order: str | None = None,
     limit: int = 10,
 ) -> list[dict]:
-    """
-    Return movies matching all supplied filters.
 
-    year:
-        Exact year, for example 2020.
-
-    year_from:
-        Minimum year, inclusive.
-
-    year_to:
-        Maximum year, inclusive.
-    """
     safe_limit = max(1, min(int(limit or 10), 100))
 
-    query = (
-        supabase
-        .table("movies")
-        .select("*")
-        .gte("rating", float(min_rating or 0))
-        .gte("vote_count", min_vote_count)
-        .not_.is_("rating", "null")
-    )
-
-    if year is not None:
-        query = query.eq("year", int(year))
-    else:
-        if year_from is not None:
-            query = query.gte("year", int(year_from))
-
-        if year_to is not None:
-            query = query.lte("year", int(year_to))
+    movie_ids = None
 
     if actor:
         movie_ids = get_movie_ids_by_actor(actor)
@@ -193,11 +121,15 @@ def get_recommendations(
         if not movie_ids:
             return []
 
-        query = query.in_("id", movie_ids)
-
-    # Fetch enough candidates for local genre filtering and score sorting.
-    response = query.limit(1000).execute()
-    movies = response.data or []
+    movies = fetch_recommendation_candidates(
+        min_rating=float(min_rating or 0),
+        min_vote_count=min_vote_count,
+        year=int(year) if year is not None else None,
+        year_from=int(year_from) if year_from is not None else None,
+        year_to=int(year_to) if year_to is not None else None,
+        movie_ids=movie_ids,
+        limit=1000,
+    )
 
     if genre:
         normalized_genre = genre.strip().casefold()
@@ -241,7 +173,6 @@ def get_recommendations(
 
     selected_movies = movies[:safe_limit]
 
-    # Add verified actor names so the AI explanation does not have to guess.
     selected_movie_ids = [
         movie["id"]
         for movie in selected_movies
@@ -251,7 +182,9 @@ def get_recommendations(
     actors_by_movie = get_actor_names_by_movie_ids(selected_movie_ids)
 
     for movie in selected_movies:
-        movie["actors"] = actors_by_movie.get(movie.get("id"), [])
+        movie["actors"] = actors_by_movie.get(
+            movie.get("id"),
+            [],
+        )
 
     return selected_movies
-
