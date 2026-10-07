@@ -8,16 +8,10 @@ recommendations.
 """
 
 import json
-import os
+
 from typing import Any
-
-from dotenv import load_dotenv
-from openai import OpenAI
-
+from clients.openai_client import get_openai_client
 from services.recommendations import get_recommendations
-
-
-load_dotenv()
 
 GENRE_MAP = {
     "sci-fi": "Science Fiction",
@@ -40,16 +34,6 @@ GENRE_MAP = {
     "romance": "Romance",
     "family": "Family",
 }
-
-
-def _get_openai_client() -> OpenAI:
-    """Create the OpenAI client only when AI functionality is actually used."""
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError(
-            "OPENAI_API_KEY environment variable is required for AI recommendations."
-        )
-    return OpenAI(api_key=api_key)
 
 
 def _safe_json_loads(text: str) -> Any:
@@ -78,7 +62,7 @@ def parse_user_prompt(prompt: str) -> dict:
     year_to:
         Upper boundary, e.g. "before 2020" or "up to 2020".
     """
-    client = _get_openai_client()
+    client = get_openai_client()
 
     response = client.responses.create(
         model="gpt-5-mini",
@@ -345,7 +329,7 @@ def explain_recommendations(
         for movie in recommendations[:5]
     ]
 
-    client = _get_openai_client()
+    client = get_openai_client()
 
     response = client.responses.create(
         model="gpt-5-mini",
