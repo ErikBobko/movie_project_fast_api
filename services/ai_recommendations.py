@@ -7,66 +7,6 @@ from services.ai_prompt_parser import (
 from services.ai_explanations import explain_recommendations
 
 
-def _post_filter_recommendations(
-    recommendations: list,
-    filters: dict,
-    limit: int,
-) -> list:
-    """
-    Enforce year and rating filters once more in Python.
-
-    This prevents a broad database query or fallback from returning a movie
-    that does not satisfy the user's requested year.
-    """
-    exact_year = filters.get("year")
-    year_from = filters.get("year_from")
-    year_to = filters.get("year_to")
-    min_rating = filters.get("min_rating") or 0
-
-    filtered = []
-
-    for movie in recommendations:
-        movie_year = movie.get("year")
-        movie_rating = movie.get("rating")
-
-        try:
-            movie_year = int(movie_year) if movie_year is not None else None
-        except (TypeError, ValueError):
-            movie_year = None
-
-        try:
-            movie_rating = (
-                float(movie_rating)
-                if movie_rating is not None
-                else 0
-            )
-        except (TypeError, ValueError):
-            movie_rating = 0
-
-        if exact_year is not None and movie_year != exact_year:
-            continue
-
-        if year_from is not None:
-            if movie_year is None or movie_year < year_from:
-                continue
-
-        if year_to is not None:
-            if movie_year is None or movie_year > year_to:
-                continue
-
-        if movie_rating < min_rating:
-            continue
-
-        filtered.append(movie)
-
-        if len(filtered) >= limit:
-            break
-
-    return filtered
-
-
-
-
 def get_ai_recommendations(prompt: str) -> dict:
     """
     Main public function used by the API or Streamlit application.
