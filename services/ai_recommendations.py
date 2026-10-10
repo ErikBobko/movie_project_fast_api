@@ -1,4 +1,4 @@
-
+from openai import APIError
 from services.recommendations import get_recommendations
 from services.ai_prompt_parser import (
     parse_user_prompt,
@@ -42,11 +42,15 @@ def get_ai_recommendations(prompt: str) -> dict:
             ),
         }
 
-    explanations = explain_recommendations(
-        prompt=prompt,
-        recommendations=recommendations,
-        filters=filters,
-    )
+    try:
+        explanations = explain_recommendations(
+            prompt=prompt,
+            recommendations=recommendations,
+            filters=filters,
+        )
+    except (ValueError, APIError):
+        explanations = []
+
 
     explanation_map = {
         item["id"]: item["reason"]
