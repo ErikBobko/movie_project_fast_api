@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,Query
 
 from services.analytics import get_top_rated
 
@@ -11,9 +11,9 @@ from services.actor_analytics import (
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
-@router.get("/top-rated")
-def top_rated():
-    return get_top_rated()
+@router.get("/actors/top")
+def top_rated(limit: int = Query(default = 10, ge = 1, le = 100)):
+    return get_top_rated(limit)
 
 @router.get("/actors/top")
 def top_actors():
