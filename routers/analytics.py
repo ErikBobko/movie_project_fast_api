@@ -11,7 +11,7 @@ from services.actor_analytics import (
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
 
-@router.get("/actors/top")
+@router.get("/top-rated")
 def top_rated(limit: int = Query(default = 10, ge = 1, le = 100)):
     return get_top_rated(limit)
 
