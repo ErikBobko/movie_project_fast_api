@@ -36,6 +36,23 @@ def test_top_rated_success(monkeypatch):
     assert received_limits == [5]
 
 
+def test_top_rated_empty_list(monkeypatch):
+    received_limits = []
+    def fake_get_top_rated(limit):
+        received_limits.append(limit)
+        return []
+    monkeypatch.setattr(
+        "routers.analytics.get_top_rated",
+        fake_get_top_rated
+    )
+    response = client.get("/analytics/top-rated")
+
+
+    assert response.status_code == 200
+    assert response.json() == []
+    assert received_limits == [10]
+
+
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -109,5 +126,45 @@ def test_highest_rated_actors_empty_list(monkeypatch):
     )
     response = client.get("/analytics/actors/highest-rated")
 
+    assert response.status_code == 200
+    assert response.json() == []
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+
+
+def test_get_most_popular_actors_returns_200(monkeypatch):
+    def fake_most_popular_actors():
+
+        return [
+    {"name": "Brad Pitt", "movie_count": 8, "avg_popularity": 85.5},
+    {"name": "Leonardo DiCaprio", "movie_count": 6, "avg_popularity": 78.2}
+]
+
+    monkeypatch.setattr(
+        "routers.analytics.get_most_popular_actors",
+        fake_most_popular_actors
+    )
+
+    response = client.get("/analytics/actors/popular")
+
+    assert response.status_code == 200
+    assert response.json() == [
+    {"name": "Brad Pitt", "movie_count": 8, "avg_popularity": 85.5},
+    {"name": "Leonardo DiCaprio", "movie_count": 6, "avg_popularity": 78.2}
+]
+
+
+
+def test_get_most_popular_actors_empty_list(monkeypatch):
+    def fake_most_popular_actors():
+
+        return []
+    monkeypatch.setattr(
+        "routers.analytics.get_most_popular_actors",
+        fake_most_popular_actors
+    )
+
+    response = client.get("/analytics/actors/popular")
     assert response.status_code == 200
     assert response.json() == []
