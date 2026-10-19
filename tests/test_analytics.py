@@ -168,3 +168,40 @@ def test_get_most_popular_actors_empty_list(monkeypatch):
     response = client.get("/analytics/actors/popular")
     assert response.status_code == 200
     assert response.json() == []
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+    # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+
+
+def test_best_actors_returns_200(monkeypatch):
+    def fake_best_actors():
+        return [
+            {"name": "Brad Pitt", "avg_rating": 8.0, "movie_count": 4,"actor_score": 12.88},
+            {"name": "Leonardo DiCaprio", "avg_rating": 9.0, "movie_count": 10,"actor_score": 13.88},
+            {"name": "Tom Cruise", "avg_rating": 7.0, "movie_count": 6,"actor_score": 14.88},
+        ]
+    monkeypatch.setattr(
+            "routers.analytics.get_best_actors",
+            fake_best_actors
+        )
+    response = client.get("/analytics/actors/best")
+
+    assert response.status_code == 200
+    assert response.json() == [
+            {"name": "Brad Pitt", "avg_rating": 8.0, "movie_count": 4,"actor_score": 12.88},
+            {"name": "Leonardo DiCaprio", "avg_rating": 9.0, "movie_count": 10,"actor_score": 13.88},
+            {"name": "Tom Cruise", "avg_rating": 7.0, "movie_count": 6,"actor_score": 14.88},
+        ]
+
+def test_best_actors_empty_list(monkeypatch):
+    def fake_best_actors():
+        return []
+    monkeypatch.setattr(
+        "routers.analytics.get_best_actors",
+        fake_best_actors
+    )
+    response = client.get("/analytics/actors/best")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
