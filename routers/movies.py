@@ -9,17 +9,15 @@ from services.hybrid_recommendations import get_hybrid_similar_movies
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
 
+from fastapi import Query
+
 
 @router.get("")
-def get_movies(limit: int = 100,offset: int = 0):
-    """
-    Vráti zoznam filmov
-
-    :param limit:  max.počet filmov
-    :param offset:  od ktorého záznamu začíname
-
-    """
-    return get_all_movies(limit=limit,offset=offset)
+def get_movies(
+    limit: int = Query(default=100, ge=1, le=100),
+    offset: int = Query(default=0, ge=0)
+):
+    return get_all_movies(limit=limit, offset=offset)
 
 @router.get("/by-tmdb-id/{tmdb_id}")
 def movie_by_tmdb_id(tmdb_id: int):
