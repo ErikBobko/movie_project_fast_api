@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,Path,Query,HTTPException
 from models.movie import Movie
 from services.movies import (get_all_movies,get_movie_by_id,get_movie_by_tmdb_id,create_movie)
 from clients.tmdb_client import (get_movie_cast,get_movie_crew_summary)
@@ -20,8 +20,12 @@ def get_movies(
     return get_all_movies(limit=limit, offset=offset)
 
 @router.get("/by-tmdb-id/{tmdb_id}")
-def movie_by_tmdb_id(tmdb_id: int):
-    return get_movie_by_tmdb_id(tmdb_id)
+def movie_by_tmdb_id(tmdb_id: int = Path(ge=1)):
+    movie = get_movie_by_tmdb_id(tmdb_id)
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    return movie
+
 
 @router.get("/by-id/{movie_id}")
 def movie_by_id(movie_id: int):
