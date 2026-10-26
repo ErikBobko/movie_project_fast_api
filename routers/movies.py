@@ -28,8 +28,11 @@ def movie_by_tmdb_id(tmdb_id: int = Path(ge=1)):
 
 
 @router.get("/by-id/{movie_id}")
-def movie_by_id(movie_id: int):
-    return get_movie_by_id(movie_id)
+def movie_by_id(movie_id: int = Path(ge=1)):
+    movie = get_movie_by_id(movie_id)
+    if not movie:
+        raise HTTPException(status_code=404, detail="Movie not found")
+    return movie
 
 @router.get("/{tmdb_id}/cast")
 def get_cast(tmdb_id: int):

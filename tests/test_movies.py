@@ -112,7 +112,47 @@ def test_movie_by_tmdb_id_not_found(monkeypatch):
     assert response.json() == {"detail": "Movie not found"}
 
 
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
+def test_movie_by_id_success(monkeypatch):
+    received_params = []
+    def fake_get_movie_by_id(tmdb_id):
+        received_params.append((tmdb_id))
+        return {"id": 10, "title": "Inception"}
+    monkeypatch.setattr(
+        "routers.movies.get_movie_by_id",
+        fake_get_movie_by_id
+    )
+
+    response = client.get("/movies/by-id/10")
+
+    assert response.status_code == 200
+    assert response.json() == {"id": 10, "title": "Inception"}
+    assert received_params == [10]
+
+def test_movie_by_id_not_found(monkeypatch):
+    received_params = []
+    def fake_get_movie_by_id(tmdb_id):
+        received_params.append((tmdb_id))
+        return None
+    monkeypatch.setattr(
+        "routers.movies.get_movie_by_id",
+        fake_get_movie_by_id
+    )
+
+    response = client.get("/movies/by-id/999999")
+
+    assert response.status_code == 404
+    assert received_params == [999999]
+    assert response.json() == {"detail": "Movie not found"}
+
+
+
+def test_movie_by_id_invalid():
+
+    response = client.get("/movies/by-id/0")
+    assert response.status_code == 422
 
 
 
