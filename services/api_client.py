@@ -22,7 +22,7 @@ def safe_get(url, timeout=75, retries=2, **kwargs):
             return response.json()
 
         except requests.RequestException as e:
-            print(f"Request failed ({attempt + 1}/{retries}): {url}")
+            print(f"Request failed ({attempt + 1}/{retries}): {url} | Error: {e}")
 
             if attempt < retries - 1:
                 time.sleep(0.5)
