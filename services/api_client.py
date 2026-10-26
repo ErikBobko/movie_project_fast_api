@@ -141,7 +141,7 @@ def get_ai_recommendations(prompt: str):
     response.raise_for_status()
     return response.json()
 
-def get_all_movies(page_size: int = 1000) -> list[dict]:
+def get_all_movies(page_size: int = 100) -> list[dict]:
     movies = []
     offset = 0
 
@@ -155,6 +155,8 @@ def get_all_movies(page_size: int = 1000) -> list[dict]:
             timeout=75,
         )
 
+        if batch is None:
+            raise RuntimeError("Failed to load movies from API")
         movies.extend(batch)
 
         if len(batch) < page_size:
