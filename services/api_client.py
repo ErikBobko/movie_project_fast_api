@@ -154,7 +154,6 @@ def get_all_movies(page_size: int = 100) -> list[dict]:
             },
             timeout=75,
         )
-
         if batch is None:
             raise RuntimeError("Failed to load movies from API")
         movies.extend(batch)
