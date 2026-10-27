@@ -2,9 +2,6 @@ from fastapi import APIRouter,Path,Query,HTTPException
 from models.movie import Movie
 from services.movies import (get_all_movies,get_movie_by_id,get_movie_by_tmdb_id,create_movie)
 from clients.tmdb_client import (get_movie_cast,get_movie_crew_summary)
-from services.similar_movies import get_similar_movies
-from services.content_recommendations import get_similar_movies_by_content
-from services.hybrid_recommendations import get_hybrid_similar_movies
 
 
 router = APIRouter(prefix="/movies", tags=["Movies"])
@@ -33,6 +30,8 @@ def movie_by_id(movie_id: int = Path(ge=1)):
     if not movie:
         raise HTTPException(status_code=404, detail="Movie not found")
     return movie
+
+
 
 @router.get("/{tmdb_id}/cast")
 def get_cast(tmdb_id: int):
