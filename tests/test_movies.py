@@ -159,7 +159,142 @@ def test_movie_by_id_invalid():
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
 
+def test_get_movie_cast_success(monkeypatch):
+    received_params = []
+    def fake_get_movie_cast(tmdb_id):
+        received_params.append((tmdb_id))
+        return [{"name": "Brad Pitt"}]
 
 
+    monkeypatch.setattr(
+        "routers.movies.get_movie_cast",
+        fake_get_movie_cast
+    )
+    response = client.get("/movies/55/cast")
+
+
+    assert response.status_code == 200
+    assert response.json() == [{"name": "Brad Pitt"}]
+    assert received_params == [55]
+
+
+def test_get_movie_cast_invalid_id():
+
+    response = client.get("/movies/-5/cast")
+    assert response.status_code == 422
+
+def test_get_movie_cast_empty(monkeypatch):
+    def fake_get_movie_cast(tmdb_id):
+        return []
+    monkeypatch.setattr(
+        "routers.movies.get_movie_cast",
+        fake_get_movie_cast
+    )
+
+    response = client.get("/movies/55/cast")
+    assert response.status_code == 200
+    assert response.json() == []
+
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+
+
+def test_get_movie_crew_success(monkeypatch):
+    received_params = []
+    def fake_get_movie_crew(tmdb_id):
+        received_params.append((tmdb_id))
+
+        return {"director": "David Fincher"}
+
+    monkeypatch.setattr(
+        "routers.movies.get_movie_crew_summary",
+        fake_get_movie_crew
+    )
+
+    response = client.get("/movies/550/crew")
+
+
+    assert response.status_code == 200
+    assert response.json() == {"director": "David Fincher"}
+    assert received_params == [550]
+
+
+
+def test_get_movie_crew_invalid_id():
+
+    response = client.get("/movies/-5/crew")
+    assert response.status_code == 422
+
+
+def test_get_movie_crew_empty(monkeypatch):
+    def fake_get_movie_crew(tmdb_id):
+        return None
+
+    monkeypatch.setattr(
+        "routers.movies.get_movie_crew_summary",
+        fake_get_movie_crew
+    )
+
+    response = client.get("/movies/55/crew")
+
+    assert response.status_code == 200
+    assert response.json()  is None
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+    # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
+
+
+def test_create_movie_success(monkeypatch):
+    movie_data = {
+        "title": "Fight Club",
+        "tmdb_id": 550,
+        "rating": 8.8
+    }
+    def fake_create_movie(movie):
+        return movie_data
+    monkeypatch.setattr(
+        "routers.movies.create_movie",
+        fake_create_movie
+
+    )
+
+    response = client.post("/movies", json=movie_data)
+    assert response.status_code == 201
+    assert response.json() == {"title": "Fight Club",
+        "tmdb_id": 550,
+        "rating": 8.8}
+
+
+
+def test_create_movie_missing_title():
+    movie_data = {
+        "tmdb_id": 550,
+        "rating": 8.8
+    }
+
+    response = client.post("/movies", json=movie_data)
+    assert response.status_code == 422
+
+
+
+def test_create_movie_invalid_rating():
+    movie_data = {
+        "title": "Fight Club",
+        "rating":"abc",
+    }
+
+    response = client.post("/movies", json=movie_data)
+
+    assert response.status_code == 422
+
+
+
+def test_create_movie_successful(monkeypatch):
+    movie_data = {
+        "title": "Fight Club",
+    }
+    response = client.post("/movies", json=movie_data)
+
+    assert response.status_code == 201
 
 

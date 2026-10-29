@@ -1,3 +1,5 @@
+from sys import path
+
 from fastapi import APIRouter,Path,Query,HTTPException
 from models.movie import Movie
 from services.movies import (get_all_movies,get_movie_by_id,get_movie_by_tmdb_id,create_movie)
@@ -32,16 +34,19 @@ def movie_by_id(movie_id: int = Path(ge=1)):
     return movie
 
 
-
 @router.get("/{tmdb_id}/cast")
-def get_cast(tmdb_id: int):
-    return get_movie_cast(tmdb_id)
+def get_cast(tmdb_id: int = Path(ge=1)):
+    cast = get_movie_cast(tmdb_id)
+    return cast
+
 
 @router.get("/{tmdb_id}/crew")
-def get_crew(tmdb_id: int):
-    return get_movie_crew_summary(tmdb_id)
+def get_crew(tmdb_id: int = Path(ge=1)):
+    crew = get_movie_crew_summary(tmdb_id)
+    return crew
 
-@router.post("")
+
+@router.post("",status_code=201)
 def create_new_movie(movie: Movie):
     return create_movie(movie)
 
