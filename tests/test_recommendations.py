@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-import routers.recommendations
+
 from main import app
 
 test_client = TestClient(app)
