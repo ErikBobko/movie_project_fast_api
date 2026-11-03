@@ -198,3 +198,75 @@ def test_sync_popular_invalid_params(pages):
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------#
 
+def test_sync_full_success(monkeypatch):
+    received_param = []
+    def mock_sync_full_movies(**kwargs):
+        received_param.append(kwargs)
+
+        fake_sync_full_movies = {
+    "movies_synced": 50,
+    "cast_sync": {
+        "movies_synced": 20,
+        "actors_processed": 150,
+        "relations_synced": 180
+    },
+    "actor_details_sync": {
+        "updated": 80,
+        "total": 100
+    }
+}
+        return fake_sync_full_movies
+
+    monkeypatch.setattr(
+        "routers.sync.sync_full_database",
+        mock_sync_full_movies,
+    )
+
+    response = client.post("/sync/full?pages=5&cast_limit=5&actor_details_limit=5")
+
+    assert response.status_code == 200
+    assert response.json() == {
+    "movies_synced": 50,
+    "cast_sync": {
+        "movies_synced": 20,
+        "actors_processed": 150,
+        "relations_synced": 180
+    },
+    "actor_details_sync": {
+        "updated": 80,
+        "total": 100
+    }
+}
+    assert received_param == [{"pages" :5,"cast_limit":5,"actor_details_limit":5}]
+
+
+def test_sync_full_default_params(monkeypatch):
+    received_param = []
+    def mock_sync_full_movies(**kwargs):
+        received_param.append(kwargs)
+
+    monkeypatch.setattr(
+        "routers.sync.sync_full_database",
+        mock_sync_full_movies,
+    )
+
+    response = client.post("/sync/full")
+
+    assert response.status_code == 200
+    assert received_param == [{"pages" :5,"cast_limit":1000,"actor_details_limit":1000}]
+
+
+@pytest.mark.parametrize(
+    "pages, cast_limit, actor_details_limit",
+    [
+        (0, 100, 100),
+        (11, 100, 100),
+        (5, 0, 100),
+        (5, 1001, 100),
+        (5, 100, 0),
+        (5, 100, 1001),
+    ]
+)
+def test_sync_full_movies(pages, cast_limit, actor_details_limit):
+    response = client.post(f"/sync/full?pages={pages}&cast_limit={cast_limit}&actor_details_limit={actor_details_limit}")
+    assert response.status_code == 422

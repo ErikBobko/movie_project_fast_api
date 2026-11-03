@@ -30,9 +30,9 @@ def sync_movies(pages: int = Query(default=1,gt=0,le=10)):
 
 @router.post("/full")
 def sync_full(
-    pages: int = 5,
-    cast_limit: int = 1000,
-    actor_details_limit: int = 1000,
+    pages: int = Query(default=5,gt=0,le=10),
+    cast_limit: int = Query(default=1000,gt=0,le=1000),
+    actor_details_limit: int = Query(default=1000,gt=0,le=1000),
 ):
     return sync_full_database(
         pages=pages,
