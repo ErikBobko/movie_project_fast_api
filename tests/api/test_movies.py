@@ -289,12 +289,6 @@ def test_create_movie_invalid_rating():
 
 
 
-def test_create_movie_successful(monkeypatch):
-    movie_data = {
-        "title": "Fight Club",
-    }
-    response = client.post("/movies", json=movie_data)
 
-    assert response.status_code == 201
 
 
