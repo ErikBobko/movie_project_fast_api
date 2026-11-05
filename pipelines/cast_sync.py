@@ -1,3 +1,5 @@
+
+
 from clients.tmdb_client import get_movie_cast,get_actor_details
 from db import supabase
 
@@ -10,6 +12,11 @@ def _sync_cast_for_movie(movie):
     relations_synced = 0
 
     cast = get_movie_cast(tmdb_id, limit=10)
+
+    if cast is None:
+        return (0,0,False)
+
+
 
     for actor in cast:
         actor_payload = {
@@ -26,7 +33,7 @@ def _sync_cast_for_movie(movie):
         )
 
         if not actor_response.data:
-            continue
+            return actors_synced, relations_synced,False
 
         saved_actor = actor_response.data[0]
 
@@ -37,20 +44,32 @@ def _sync_cast_for_movie(movie):
             "cast_order": actor["order"],
         }
 
-        supabase.table("movie_actors").upsert(
-            relation_payload,
-            on_conflict="movie_id,actor_id"
-        ).execute()
+        relation_response = (
+            supabase.table("movie_actors").upsert(
+                relation_payload,
+                on_conflict="movie_id,actor_id"
+            ).execute()
+        )
+
+        if not relation_response.data:
+            return actors_synced, relations_synced,False
+
 
         actors_synced += 1
         relations_synced += 1
 
-    
-    supabase.table("movies").update(
-        {"cast_synced": True}
-    ).eq("id", db_movie_id).execute()
+    movie_response = (
+        supabase.table("movies")
+        .update({"cast_synced": True})
+        .eq("id", db_movie_id)
+        .execute()
+    )
 
-    return actors_synced, relations_synced
+    if not movie_response.data:
+        return actors_synced, relations_synced,False
+
+    return actors_synced, relations_synced,True
+
 
 
 def sync_movie_casts(limit: int = 100, offset: int = 0):
@@ -68,12 +87,17 @@ def sync_movie_casts(limit: int = 100, offset: int = 0):
     actors_synced = 0
     relations_synced = 0
 
-    for movie in movies:
-        actor_count, relation_count = _sync_cast_for_movie(movie)
 
-        actors_synced += actor_count
-        relations_synced += relation_count
-        movies_synced += 1
+    for movie in movies:
+        try:
+            actor_count, relation_count,success= _sync_cast_for_movie(movie)
+            actors_synced += actor_count
+            relations_synced += relation_count
+            if success:
+                movies_synced += 1
+        except Exception as e:
+            print(f"Failed movie {movie['title']}:{e}")
+
 
     return {
         "movies_synced": movies_synced,

@@ -88,6 +88,10 @@ def get_movie_credits(tmdb_id: int) -> dict:
 
 def get_movie_cast(tmdb_id: int, limit: int = 10):
     credits = get_movie_credits(tmdb_id)
+
+    if credits is None:
+        return None
+
     cast = credits.get("cast", [])
 
     return [
@@ -103,6 +107,10 @@ def get_movie_cast(tmdb_id: int, limit: int = 10):
 
 def get_movie_crew_summary(tmdb_id: int):
     credits = get_movie_credits(tmdb_id)
+
+    if credits is None:
+        return None
+
     crew = credits.get("crew", [])
 
     directors = [
