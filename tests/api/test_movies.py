@@ -1,9 +1,19 @@
 from fastapi.testclient import TestClient
 
+import pytest
 from main import app
+from security import verify_api_key
 
 
 client = TestClient(app)
+
+@pytest.fixture(autouse=True)
+def override_auth():
+    app.dependency_overrides[verify_api_key] = lambda: None
+
+    yield
+
+    app.dependency_overrides.pop(verify_api_key, None)
 
 
 def test_get_movies_invalid_limit():
