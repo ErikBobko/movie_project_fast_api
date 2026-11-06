@@ -5,6 +5,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 NO_POSTER_PATH = BASE_DIR / "assets" / "no_poster.png"
+st.write("DEBUG poster exists:", NO_POSTER_PATH.exists())
 
 
 
