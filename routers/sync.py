@@ -1,3 +1,6 @@
+from fastapi import Depends
+from security import verify_api_key
+
 from fastapi import APIRouter,Query
 
 from pipelines.ingestion import sync_popular_movies
@@ -8,7 +11,11 @@ from pipelines.cast_sync import (
     sync_actor_details,
 )
 
-router = APIRouter(prefix="/sync",tags=["Sync"])
+router = APIRouter(
+    prefix="/sync",
+    tags=["Sync"],
+    dependencies=[Depends(verify_api_key)]
+)
 
 
 @router.post("/casts")
