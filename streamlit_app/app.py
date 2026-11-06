@@ -273,7 +273,7 @@ with main:
                 )
             else:
                 st.image(
-                    str(NO_POSTER_PATH),
+                    "https://raw.githubusercontent.com/ErikBobko/movie_project_fast_api/main/streamlit_app/assets/no_poster.png",
                     width=80
                 )
 
