@@ -4,6 +4,7 @@ import time
 import requests
 
 API_URL = os.getenv("API_BASE_URL", "http://127.0.0.1:8000")
+API_KEY = os.getenv("SYNC_API_KEY")
 
 def get_similar_movies(movie_id: int):
     response = requests.get(f"{API_URL}/movies/{movie_id}/similar")
@@ -134,10 +135,17 @@ def get_best_actors():
         return []
 
 def get_ai_recommendations(prompt: str):
+    headers = {
+        "X-API-Key": API_KEY
+    }
+
     response = requests.post(
         f"{API_URL}/ai/recommendations",
-        json={"prompt": prompt}
+        json={"prompt": prompt},
+        headers=headers,
+        timeout=60
     )
+
     response.raise_for_status()
     return response.json()
 

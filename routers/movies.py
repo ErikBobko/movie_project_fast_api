@@ -1,6 +1,7 @@
-from sys import path
 
-from fastapi import APIRouter,Path,Query,HTTPException
+
+from fastapi import APIRouter,Path,Query,HTTPException,Depends
+from security import verify_api_key
 from models.movie import Movie
 from services.movies import (get_all_movies,get_movie_by_id,get_movie_by_tmdb_id,create_movie)
 from clients.tmdb_client import (get_movie_cast,get_movie_crew_summary)
@@ -46,7 +47,11 @@ def get_crew(tmdb_id: int = Path(ge=1)):
     return crew
 
 
-@router.post("",status_code=201)
+@router.post(
+    "",
+    dependencies=[Depends(verify_api_key)],
+    status_code=201
+)
 def create_new_movie(movie: Movie):
     return create_movie(movie)
 

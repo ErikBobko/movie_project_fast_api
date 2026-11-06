@@ -1,4 +1,10 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,Depends
+from security import verify_api_key
+
+
+
+
+
 
 from models.ai import PromptRequest
 from services.ai_recommendations import (
@@ -6,7 +12,7 @@ from services.ai_recommendations import (
     get_ai_recommendations,
 )
 
-router = APIRouter(prefix="/ai",tags=["AI"])
+router = APIRouter(prefix="/ai",tags=["AI"],dependencies=[Depends(verify_api_key)])
 
 @router.post("/parse")
 def ai_parse(request: PromptRequest):
