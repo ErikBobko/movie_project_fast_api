@@ -61,8 +61,7 @@ def get_movie_details(tmdb_id: int):
         params={"api_key": TMDB_API_KEY}
     ).json()
 
-
-def get_movie_credits(tmdb_id: int) -> dict:
+def get_movie_credits(tmdb_id: int) -> dict | None:
     url = f"{BASE_URL}/movie/{tmdb_id}/credits"
 
     try:
@@ -83,7 +82,7 @@ def get_movie_credits(tmdb_id: int) -> dict:
 
     except requests.RequestException as e:
         print(f"TMDB credits error for movie {tmdb_id}: {e}")
-        return {"cast": []}
+        return None
 
 
 def get_movie_cast(tmdb_id: int, limit: int = 10):
