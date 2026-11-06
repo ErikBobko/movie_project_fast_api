@@ -123,11 +123,14 @@ def sync_missing_movie_casts(limit: int = 100):
     relations_synced = 0
 
     for movie in movies:
-        actor_count, relation_count = _sync_cast_for_movie(movie)
-
-        actors_synced += actor_count
-        relations_synced += relation_count
-        movies_synced += 1
+        try:
+            actor_count, relation_count, success = _sync_cast_for_movie(movie)
+            actors_synced += actor_count
+            relations_synced += relation_count
+            if success:
+                movies_synced += 1
+        except Exception as e:
+            print(f"Failed movie {movie['title']}:{e}")
 
     return {
         "movies_synced": movies_synced,
