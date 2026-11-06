@@ -49,7 +49,7 @@ def render_movie_details(movie_id):
             )
         else:
             st.image(
-                str(NO_POSTER_PATH),
+                NO_POSTER_PATH.read_bytes(),
                 width=300
             )
 
