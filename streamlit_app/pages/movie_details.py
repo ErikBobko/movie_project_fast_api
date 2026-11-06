@@ -5,7 +5,7 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 NO_POSTER_PATH = BASE_DIR / "assets" / "no_poster.png"
-st.write("DEBUG poster exists:", NO_POSTER_PATH.exists())
+
 
 
 
@@ -29,7 +29,7 @@ def render_movie_details(movie_id):
     if not movie:
         st.error(f"Movie not found. movie_id={movie_id}")
         return
-
+    st.write("DEBUG poster exists:", NO_POSTER_PATH.exists())
     poster_path = movie.get("poster_path")
 
     cast = get_movie_cast(movie["tmdb_id"])
