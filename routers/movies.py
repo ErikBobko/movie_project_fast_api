@@ -38,12 +38,25 @@ def movie_by_id(movie_id: int = Path(ge=1)):
 @router.get("/{tmdb_id}/cast")
 def get_cast(tmdb_id: int = Path(ge=1)):
     cast = get_movie_cast(tmdb_id)
+
+    if cast is None:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to fetch movie cast from TMDB"
+        )
+
     return cast
 
 
 @router.get("/{tmdb_id}/crew")
 def get_crew(tmdb_id: int = Path(ge=1)):
     crew = get_movie_crew_summary(tmdb_id)
+    if crew is None:
+        raise HTTPException(
+            status_code=502,
+            detail="Unable to fetch movie crew from TMDB"
+        )
+
     return crew
 
 

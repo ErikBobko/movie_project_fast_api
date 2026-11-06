@@ -75,7 +75,7 @@ def get_movie_credits(tmdb_id: int) -> dict | None:
         )
 
         if response.status_code == 404:
-            return {"cast": []}
+            return None
 
         response.raise_for_status()
         return response.json()
