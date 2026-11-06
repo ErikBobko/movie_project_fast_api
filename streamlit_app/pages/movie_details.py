@@ -49,7 +49,7 @@ def render_movie_details(movie_id):
             )
         else:
             st.image(
-                NO_POSTER_PATH.read_bytes(),
+                "https://raw.githubusercontent.com/ErikBobko/movie_project_fast_api/main/streamlit_app/assets/no_poster.png",
                 width=300
             )
 
